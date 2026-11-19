@@ -1,0 +1,339 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+local SoundService = game:GetService("SoundService")
+
+local player = Players.LocalPlayer
+local REQUIRED_KEY = "true"
+local CLICK_SOUND_ID = "rbxassetid://6895079853"
+
+local guiName = "TRUECHANCE"
+if CoreGui:FindFirstChild(guiName) then
+	CoreGui[guiName]:Destroy()
+elseif player:FindFirstChild("PlayerGui") and player.PlayerGui:FindFirstChild(guiName) then
+	player.PlayerGui[guiName]:Destroy()
+end
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = guiName
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+local ok = pcall(function()
+	screenGui.Parent = CoreGui
+end)
+if not ok then
+	screenGui.Parent = player:WaitForChild("PlayerGui")
+end
+
+-- Sound click dùng chung cho các nút (không dùng cho 2 ảnh)
+local clickSound = Instance.new("Sound")
+clickSound.Name = "ButtonClickSound"
+clickSound.SoundId = CLICK_SOUND_ID
+clickSound.Volume = 0.6
+clickSound.Parent = SoundService
+
+local function playClickSound()
+	local s = clickSound:Clone()
+	s.Parent = SoundService
+	s:Play()
+	s.Ended:Once(function()
+		s:Destroy()
+	end)
+end
+
+-- Khung chính phong cách WindUI (mở rộng chiều cao nhẹ để gọn cả Dropdown + 2 ảnh + thanh key)
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "TRUECHANCE_Main"
+mainFrame.Size = UDim2.new(0, 380, 0, 178)
+mainFrame.Position = UDim2.new(0.5, -190, 0.5, -89)
+mainFrame.BackgroundColor3 = Color3.fromRGB(20, 21, 26)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.ClipsDescendants = true
+mainFrame.Parent = screenGui
+
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Color = Color3.fromRGB(52, 55, 68)
+mainStroke.Thickness = 1.2
+mainStroke.Parent = mainFrame
+
+-- Thanh Topbar WindUI
+local topBar = Instance.new("Frame")
+topBar.Name = "TopBar"
+topBar.Size = UDim2.new(1, 0, 0, 32)
+topBar.BackgroundColor3 = Color3.fromRGB(26, 28, 34)
+topBar.BorderSizePixel = 0
+topBar.Parent = mainFrame
+
+Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 10)
+
+local topFix = Instance.new("Frame")
+topFix.Size = UDim2.new(1, 0, 0, 10)
+topFix.Position = UDim2.new(0, 0, 1, -10)
+topFix.BackgroundColor3 = Color3.fromRGB(26, 28, 34)
+topFix.BorderSizePixel = 0
+topFix.Parent = topBar
+
+local divider = Instance.new("Frame")
+divider.Size = UDim2.new(1, 0, 0, 1)
+divider.Position = UDim2.new(0, 0, 1, -1)
+divider.BackgroundColor3 = Color3.fromRGB(45, 48, 60)
+divider.BorderSizePixel = 0
+divider.Parent = topBar
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, -70, 1, 0)
+titleLabel.Position = UDim2.new(0, 12, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "TRUECHANCE"
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.TextColor3 = Color3.fromRGB(240, 242, 248)
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextSize = 13
+titleLabel.Parent = topBar
+
+local minBtn = Instance.new("TextButton")
+minBtn.Size = UDim2.new(0, 22, 0, 22)
+minBtn.Position = UDim2.new(1, -52, 0.5, -11)
+minBtn.BackgroundColor3 = Color3.fromRGB(36, 39, 48)
+minBtn.Text = "-"
+minBtn.TextColor3 = Color3.fromRGB(210, 214, 224)
+minBtn.Font = Enum.Font.GothamBold
+minBtn.TextSize = 14
+minBtn.Parent = topBar
+Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 6)
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 22, 0, 22)
+closeBtn.Position = UDim2.new(1, -26, 0.5, -11)
+closeBtn.BackgroundColor3 = Color3.fromRGB(48, 28, 32)
+closeBtn.Text = "×"
+closeBtn.TextColor3 = Color3.fromRGB(255, 120, 120)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 14
+closeBtn.Parent = topBar
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
+
+-- Khu vực nội dung chính
+local contentFrame = Instance.new("Frame")
+contentFrame.Name = "Content"
+contentFrame.Size = UDim2.new(1, -16, 1, -42)
+contentFrame.Position = UDim2.new(0, 8, 0, 36)
+contentFrame.BackgroundColor3 = Color3.fromRGB(24, 26, 32)
+contentFrame.BorderSizePixel = 0
+contentFrame.Parent = mainFrame
+Instance.new("UICorner", contentFrame).CornerRadius = UDim.new(0, 8)
+
+local contentStroke = Instance.new("UIStroke")
+contentStroke.Color = Color3.fromRGB(40, 43, 54)
+contentStroke.Thickness = 1
+contentStroke.Parent = contentFrame
+
+-- Phần Dropdown kiểu WindUI bên phải phía trên
+local dropdownOptions = {"Option 1", "Option 2", "Option 3"}
+local selectedOption = dropdownOptions[1]
+local dropdownOpen = false
+
+local dropHeader = Instance.new("TextButton")
+dropHeader.Name = "DropdownHeader"
+dropHeader.Size = UDim2.new(0, 165, 0, 26)
+dropHeader.Position = UDim2.new(1, -173, 0, 10)
+dropHeader.BackgroundColor3 = Color3.fromRGB(31, 34, 43)
+dropHeader.BorderSizePixel = 0
+dropHeader.Text = "  " .. selectedOption .. "  ▾"
+dropHeader.TextXAlignment = Enum.TextXAlignment.Left
+dropHeader.TextColor3 = Color3.fromRGB(235, 238, 245)
+dropHeader.Font = Enum.Font.GothamBold
+dropHeader.TextSize = 11
+dropHeader.ZIndex = 7
+dropHeader.Parent = contentFrame
+Instance.new("UICorner", dropHeader).CornerRadius = UDim.new(0, 6)
+
+local dropHeaderStroke = Instance.new("UIStroke")
+dropHeaderStroke.Color = Color3.fromRGB(56, 60, 76)
+dropHeaderStroke.Thickness = 1
+dropHeaderStroke.Parent = dropHeader
+
+local dropList = Instance.new("Frame")
+dropList.Name = "DropdownList"
+dropList.Size = UDim2.new(0, 165, 0, #dropdownOptions * 24 + 4)
+dropList.Position = UDim2.new(1, -173, 0, 39)
+dropList.BackgroundColor3 = Color3.fromRGB(28, 31, 40)
+dropList.BorderSizePixel = 0
+dropList.Visible = false
+dropList.ZIndex = 12
+dropList.Parent = contentFrame
+Instance.new("UICorner", dropList).CornerRadius = UDim.new(0, 6)
+
+local dropListStroke = Instance.new("UIStroke")
+dropListStroke.Color = Color3.fromRGB(64, 69, 88)
+dropListStroke.Thickness = 1
+dropListStroke.Parent = dropList
+
+local dropLayout = Instance.new("UIListLayout")
+dropLayout.Padding = UDim.new(0, 2)
+dropLayout.Parent = dropList
+
+local dropPad = Instance.new("UIPadding")
+dropPad.PaddingTop = UDim.new(0, 2)
+dropPad.PaddingBottom = UDim.new(0, 2)
+dropPad.PaddingLeft = UDim.new(0, 2)
+dropPad.PaddingRight = UDim.new(0, 2)
+dropPad.Parent = dropList
+
+local function refreshDropdownHeader()
+	dropHeader.Text = "  " .. selectedOption .. (dropdownOpen and "  ▴" or "  ▾")
+end
+
+for _, opt in ipairs(dropdownOptions) do
+	local optBtn = Instance.new("TextButton")
+	optBtn.Size = UDim2.new(1, 0, 0, 22)
+	optBtn.BackgroundColor3 = Color3.fromRGB(35, 39, 50)
+	optBtn.BorderSizePixel = 0
+	optBtn.Text = "  " .. opt
+	optBtn.TextXAlignment = Enum.TextXAlignment.Left
+	optBtn.TextColor3 = Color3.fromRGB(220, 224, 234)
+	optBtn.Font = Enum.Font.Gotham
+	optBtn.TextSize = 11
+	optBtn.ZIndex = 13
+	optBtn.Parent = dropList
+	Instance.new("UICorner", optBtn).CornerRadius = UDim.new(0, 5)
+
+	optBtn.MouseButton1Click:Connect(function()
+		playClickSound()
+		selectedOption = opt
+		dropdownOpen = false
+		dropList.Visible = false
+		refreshDropdownHeader()
+	end)
+end
+
+dropHeader.MouseButton1Click:Connect(function()
+	playClickSound()
+	dropdownOpen = not dropdownOpen
+	dropList.Visible = dropdownOpen
+	refreshDropdownHeader()
+end)
+
+-- Thanh ngang phía dưới (vị trí mũi tên chỉ) dùng làm ô nhập key luôn
+local barHeight = 24
+local barBottomMargin = 10
+local keyBarBox = Instance.new("TextBox")
+keyBarBox.Name = "KeyBarInput"
+keyBarBox.Size = UDim2.new(1, -16, 0, barHeight)
+keyBarBox.Position = UDim2.new(0, 8, 1, -(barHeight + barBottomMargin))
+keyBarBox.BackgroundColor3 = Color3.fromRGB(32, 35, 44)
+keyBarBox.BorderSizePixel = 0
+keyBarBox.Text = ""
+keyBarBox.PlaceholderText = "key enter here"
+keyBarBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyBarBox.Font = Enum.Font.GothamBold
+keyBarBox.TextSize = 11
+keyBarBox.ClearTextOnFocus = false
+keyBarBox.ZIndex = 5
+keyBarBox.Parent = contentFrame
+Instance.new("UICorner", keyBarBox).CornerRadius = UDim.new(0, 6)
+
+local keyBarStroke = Instance.new("UIStroke")
+keyBarStroke.Color = Color3.fromRGB(54, 58, 72)
+keyBarStroke.Thickness = 1
+keyBarStroke.Parent = keyBarBox
+
+local textGradient = Instance.new("UIGradient")
+textGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(135, 138, 148)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(220, 223, 232)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255)),
+})
+textGradient.Parent = keyBarBox
+
+local keyUnlocked = false
+keyBarBox.FocusLost:Connect(function()
+	if keyBarBox.Text == REQUIRED_KEY then
+		keyUnlocked = true
+		keyBarStroke.Color = Color3.fromRGB(95, 200, 130)
+	else
+		keyUnlocked = false
+		keyBarStroke.Color = Color3.fromRGB(54, 58, 72)
+	end
+end)
+
+-- Hàm tạo 2 ảnh nhỏ, sát nhau ở đầu bên trái, ngồi lên thanh key ngang (KHÔNG phát sound click)
+local function createHeadImage(imageId, xOffset)
+	local imgSize = 54
+	local jumpHeight = 18
+
+	local imgBtn = Instance.new("ImageButton")
+	imgBtn.Size = UDim2.new(0, imgSize, 0, imgSize)
+	local basePosition = UDim2.new(0, xOffset, 1, -(barHeight + barBottomMargin + imgSize))
+	imgBtn.Position = basePosition
+	imgBtn.BackgroundTransparency = 1
+	imgBtn.BorderSizePixel = 0
+	imgBtn.Image = "rbxassetid://" .. tostring(imageId)
+	imgBtn.ScaleType = Enum.ScaleType.Fit
+	imgBtn.AutoButtonColor = false
+	imgBtn.ZIndex = 4
+	imgBtn.Parent = contentFrame
+
+	task.delay(0.8, function()
+		if not imgBtn.IsLoaded then
+			imgBtn.Image = "rbxthumb://type=Asset&id=" .. tostring(imageId) .. "&w=420&h=420"
+		end
+	end)
+
+	local currentTween = nil
+	local clickToken = 0
+
+	imgBtn.MouseButton1Click:Connect(function()
+		clickToken += 1
+		local myToken = clickToken
+
+		if currentTween then
+			currentTween:Cancel()
+		end
+
+		local targetPos = UDim2.new(
+			basePosition.X.Scale,
+			basePosition.X.Offset,
+			basePosition.Y.Scale,
+			basePosition.Y.Offset - jumpHeight
+		)
+
+		local jumpInfo = TweenInfo.new(0.11, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		currentTween = TweenService:Create(imgBtn, jumpInfo, {
+			Position = targetPos
+		})
+		currentTween:Play()
+
+		task.delay(0.11, function()
+			if myToken == clickToken then
+				local fallInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+				currentTween = TweenService:Create(imgBtn, fallInfo, {
+					Position = basePosition
+				})
+				currentTween:Play()
+			end
+		end)
+	end)
+end
+
+createHeadImage("70844413352953", 12)
+createHeadImage("131733394534816", 70)
+
+local minimized = false
+minBtn.MouseButton1Click:Connect(function()
+	playClickSound()
+	minimized = not minimized
+	contentFrame.Visible = not minimized
+	mainFrame.Size = minimized and UDim2.new(0, 380, 0, 32) or UDim2.new(0, 380, 0, 178)
+end)
+
+closeBtn.MouseButton1Click:Connect(function()
+	playClickSound()
+	task.delay(0.08, function()
+		screenGui:Destroy()
+	end)
+end)
