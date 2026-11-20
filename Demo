@@ -58,12 +58,14 @@ local isUnlocked = false
 local minimized = false
 local guiLocked = false
 
+-- Kéo thả đặt ở outerRoot để 2 ảnh luôn di chuyển theo GUI
 local outerRoot = Instance.new("Frame")
 outerRoot.Name = "TRUECHANCE_Root"
 outerRoot.Size = UDim2.new(0, KEY_W, 0, KEY_H)
 outerRoot.Position = UDim2.new(0.5, -KEY_W / 2, 0.5, -KEY_H / 2)
 outerRoot.BackgroundTransparency = 1
-outerRoot.Active = false
+outerRoot.Active = true
+outerRoot.Draggable = true
 outerRoot.Parent = screenGui
 
 local mainFrame = Instance.new("Frame")
@@ -72,8 +74,8 @@ mainFrame.Size = UDim2.new(1, 0, 1, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20, 21, 26)
 mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
-mainFrame.Active = true
-mainFrame.Draggable = true
+mainFrame.Active = false
+mainFrame.Draggable = false
 mainFrame.ZIndex = 2
 mainFrame.Parent = outerRoot
 Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
@@ -88,6 +90,7 @@ topBar.Name = "TopBar"
 topBar.Size = UDim2.new(1, 0, 0, TOP_H)
 topBar.BackgroundColor3 = Color3.fromRGB(26, 28, 34)
 topBar.BorderSizePixel = 0
+topBar.Active = false
 topBar.ZIndex = 3
 topBar.Parent = mainFrame
 Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 10)
@@ -97,8 +100,8 @@ topFix.Size = UDim2.new(1, 0, 0, 10)
 topFix.Position = UDim2.new(0, 0, 1, -10)
 topFix.BackgroundColor3 = Color3.fromRGB(26, 28, 34)
 topFix.BorderSizePixel = 0
+topFix.Active = false
 topFix.ZIndex = 3
-topBar.Parent = mainFrame
 topFix.Parent = topBar
 
 local divider = Instance.new("Frame")
@@ -106,6 +109,7 @@ divider.Size = UDim2.new(1, 0, 0, 1)
 divider.Position = UDim2.new(0, 0, 1, -1)
 divider.BackgroundColor3 = Color3.fromRGB(120, 125, 138)
 divider.BorderSizePixel = 0
+divider.Active = false
 divider.ZIndex = 4
 divider.Parent = topBar
 
@@ -188,6 +192,7 @@ local keyScreen = Instance.new("Frame")
 keyScreen.Name = "KeyScreen"
 keyScreen.Size = UDim2.new(1, 0, 1, 0)
 keyScreen.BackgroundTransparency = 1
+keyScreen.ClipsDescendants = true
 keyScreen.Active = false
 keyScreen.ZIndex = 4
 keyScreen.Parent = contentFrame
@@ -228,6 +233,7 @@ local mainHub = Instance.new("Frame")
 mainHub.Name = "MainHub"
 mainHub.Size = UDim2.new(1, 0, 1, 0)
 mainHub.BackgroundTransparency = 1
+mainHub.ClipsDescendants = true
 mainHub.Active = false
 mainHub.Visible = false
 mainHub.ZIndex = 4
@@ -239,6 +245,7 @@ tabSidebar.Size = UDim2.new(0, 114, 1, -12)
 tabSidebar.Position = UDim2.new(0, 6, 0, 6)
 tabSidebar.BackgroundColor3 = Color3.fromRGB(28, 31, 39)
 tabSidebar.BorderSizePixel = 0
+tabSidebar.ClipsDescendants = true
 tabSidebar.Active = false
 tabSidebar.ZIndex = 5
 tabSidebar.Parent = mainHub
@@ -271,6 +278,7 @@ homePage.Name = "HomePage"
 homePage.Size = UDim2.new(1, -10, 1, -10)
 homePage.Position = UDim2.new(0, 5, 0, 5)
 homePage.BackgroundTransparency = 1
+homePage.ClipsDescendants = true
 homePage.Active = false
 homePage.ZIndex = 6
 homePage.Parent = pageArea
@@ -782,7 +790,7 @@ end)
 lockBtn.MouseButton1Click:Connect(function()
 	playClickSound()
 	guiLocked = not guiLocked
-	mainFrame.Draggable = not guiLocked
+	outerRoot.Draggable = not guiLocked
 	lockBtn.Image = guiLocked and ICON_LOCK or ICON_UNLOCK
 	lockBtn.BackgroundColor3 = guiLocked and Color3.fromRGB(65, 55, 35) or Color3.fromRGB(36, 39, 48)
 end)
