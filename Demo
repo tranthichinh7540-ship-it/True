@@ -2,6 +2,8 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local SoundService = game:GetService("SoundService")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
 
 local player = Players.LocalPlayer
 local REQUIRED_KEY = "true"
@@ -25,7 +27,7 @@ if not ok then
 	screenGui.Parent = player:WaitForChild("PlayerGui")
 end
 
--- Sound click dùng chung cho các nút (không dùng cho 2 ảnh)
+-- Sound click cho các button (trừ 2 ảnh)
 local clickSound = Instance.new("Sound")
 clickSound.Name = "ButtonClickSound"
 clickSound.SoundId = CLICK_SOUND_ID
@@ -41,31 +43,45 @@ local function playClickSound()
 	end)
 end
 
+local GUI_WIDTH = 390
+local GUI_HEIGHT = 235
+local TOP_HEIGHT = 32
+
+-- Khung bao ngoài (không ClipsDescendants để 2 ảnh có thể ngồi hẳn lên trên mép GUI)
+local outerRoot = Instance.new("Frame")
+outerRoot.Name = "TRUECHANCE_Root"
+outerRoot.Size = UDim2.new(0, GUI_WIDTH, 0, GUI_HEIGHT)
+outerRoot.Position = UDim2.new(0.5, -GUI_WIDTH / 2, 0.5, -GUI_HEIGHT / 2 + 18)
+outerRoot.BackgroundTransparency = 1
+outerRoot.Active = true
+outerRoot.Draggable = true
+outerRoot.Parent = screenGui
+
 -- Khung chính phong cách WindUI với viền màu xám nhạt
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "TRUECHANCE_Main"
-mainFrame.Size = UDim2.new(0, 380, 0, 152)
-mainFrame.Position = UDim2.new(0.5, -190, 0.5, -76)
+mainFrame.Size = UDim2.new(1, 0, 1, 0)
+mainFrame.Position = UDim2.new(0, 0, 0, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20, 21, 26)
 mainFrame.BorderSizePixel = 0
-mainFrame.Active = true
-mainFrame.Draggable = true
 mainFrame.ClipsDescendants = true
-mainFrame.Parent = screenGui
+mainFrame.ZIndex = 2
+mainFrame.Parent = outerRoot
 
 Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
 
 local mainStroke = Instance.new("UIStroke")
-mainStroke.Color = Color3.fromRGB(165, 170, 182) -- Viền màu xám nhạt
+mainStroke.Color = Color3.fromRGB(165, 170, 182)
 mainStroke.Thickness = 1.4
 mainStroke.Parent = mainFrame
 
 -- Thanh Topbar WindUI
 local topBar = Instance.new("Frame")
 topBar.Name = "TopBar"
-topBar.Size = UDim2.new(1, 0, 0, 32)
+topBar.Size = UDim2.new(1, 0, 0, TOP_HEIGHT)
 topBar.BackgroundColor3 = Color3.fromRGB(26, 28, 34)
 topBar.BorderSizePixel = 0
+topBar.ZIndex = 3
 topBar.Parent = mainFrame
 
 Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 10)
@@ -75,6 +91,7 @@ topFix.Size = UDim2.new(1, 0, 0, 10)
 topFix.Position = UDim2.new(0, 0, 1, -10)
 topFix.BackgroundColor3 = Color3.fromRGB(26, 28, 34)
 topFix.BorderSizePixel = 0
+topFix.ZIndex = 3
 topFix.Parent = topBar
 
 local divider = Instance.new("Frame")
@@ -82,10 +99,11 @@ divider.Size = UDim2.new(1, 0, 0, 1)
 divider.Position = UDim2.new(0, 0, 1, -1)
 divider.BackgroundColor3 = Color3.fromRGB(120, 125, 138)
 divider.BorderSizePixel = 0
+divider.ZIndex = 4
 divider.Parent = topBar
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -70, 1, 0)
+titleLabel.Size = UDim2.new(1, -76, 1, 0)
 titleLabel.Position = UDim2.new(0, 12, 0, 0)
 titleLabel.BackgroundTransparency = 1
 titleLabel.Text = "TRUECHANCE"
@@ -93,6 +111,7 @@ titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.TextColor3 = Color3.fromRGB(240, 242, 248)
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextSize = 13
+titleLabel.ZIndex = 4
 titleLabel.Parent = topBar
 
 local minBtn = Instance.new("TextButton")
@@ -103,6 +122,7 @@ minBtn.Text = "-"
 minBtn.TextColor3 = Color3.fromRGB(210, 214, 224)
 minBtn.Font = Enum.Font.GothamBold
 minBtn.TextSize = 14
+minBtn.ZIndex = 5
 minBtn.Parent = topBar
 Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 6)
 
@@ -114,6 +134,7 @@ closeBtn.Text = "×"
 closeBtn.TextColor3 = Color3.fromRGB(255, 120, 120)
 closeBtn.Font = Enum.Font.GothamBold
 closeBtn.TextSize = 14
+closeBtn.ZIndex = 5
 closeBtn.Parent = topBar
 Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
 
@@ -124,15 +145,23 @@ contentFrame.Size = UDim2.new(1, -16, 1, -42)
 contentFrame.Position = UDim2.new(0, 8, 0, 36)
 contentFrame.BackgroundColor3 = Color3.fromRGB(24, 26, 32)
 contentFrame.BorderSizePixel = 0
+contentFrame.ZIndex = 3
 contentFrame.Parent = mainFrame
 Instance.new("UICorner", contentFrame).CornerRadius = UDim.new(0, 8)
 
 local contentStroke = Instance.new("UIStroke")
-contentStroke.Color = Color3.fromRGB(145, 150, 162) -- Viền xám nhạt cho khung nội dung
+contentStroke.Color = Color3.fromRGB(145, 150, 162)
 contentStroke.Thickness = 1
 contentStroke.Parent = contentFrame
 
--- Thanh ngang phía dưới dùng làm ô nhập key
+-- ================= MÀN HÌNH NHẬP KEY =================
+local keyScreen = Instance.new("Frame")
+keyScreen.Name = "KeyScreen"
+keyScreen.Size = UDim2.new(1, 0, 1, 0)
+keyScreen.BackgroundTransparency = 1
+keyScreen.ZIndex = 4
+keyScreen.Parent = contentFrame
+
 local barHeight = 24
 local barBottomMargin = 10
 local keyBarBox = Instance.new("TextBox")
@@ -147,8 +176,8 @@ keyBarBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 keyBarBox.Font = Enum.Font.GothamBold
 keyBarBox.TextSize = 11
 keyBarBox.ClearTextOnFocus = false
-keyBarBox.ZIndex = 5
-keyBarBox.Parent = contentFrame
+keyBarBox.ZIndex = 6
+keyBarBox.Parent = keyScreen
 Instance.new("UICorner", keyBarBox).CornerRadius = UDim.new(0, 6)
 
 local keyBarStroke = Instance.new("UIStroke")
@@ -156,7 +185,6 @@ keyBarStroke.Color = Color3.fromRGB(135, 140, 152)
 keyBarStroke.Thickness = 1
 keyBarStroke.Parent = keyBarBox
 
--- Chữ màu gradient xám trắng
 local textGradient = Instance.new("UIGradient")
 textGradient.Color = ColorSequence.new({
 	ColorSequenceKeypoint.new(0, Color3.fromRGB(135, 138, 148)),
@@ -165,33 +193,411 @@ textGradient.Color = ColorSequence.new({
 })
 textGradient.Parent = keyBarBox
 
-local keyUnlocked = false
-keyBarBox.FocusLost:Connect(function()
-	if keyBarBox.Text == REQUIRED_KEY then
-		keyUnlocked = true
-		keyBarStroke.Color = Color3.fromRGB(95, 200, 130)
+-- ================= GUI CHÍNH (SAU KHI NHẬP KEY) =================
+local mainHub = Instance.new("Frame")
+mainHub.Name = "MainHub"
+mainHub.Size = UDim2.new(1, 0, 1, 0)
+mainHub.BackgroundTransparency = 1
+mainHub.Visible = false
+mainHub.ZIndex = 4
+mainHub.Parent = contentFrame
+
+-- Cột tab bên trái (Home & Setting)
+local tabSidebar = Instance.new("Frame")
+tabSidebar.Name = "Sidebar"
+tabSidebar.Size = UDim2.new(0, 104, 1, -12)
+tabSidebar.Position = UDim2.new(0, 6, 0, 6)
+tabSidebar.BackgroundColor3 = Color3.fromRGB(28, 31, 39)
+tabSidebar.BorderSizePixel = 0
+tabSidebar.ZIndex = 5
+tabSidebar.Parent = mainHub
+Instance.new("UICorner", tabSidebar).CornerRadius = UDim.new(0, 7)
+
+local tabStroke = Instance.new("UIStroke")
+tabStroke.Color = Color3.fromRGB(135, 140, 152)
+tabStroke.Thickness = 1
+tabStroke.Parent = tabSidebar
+
+local pageArea = Instance.new("Frame")
+pageArea.Name = "PageArea"
+pageArea.Size = UDim2.new(1, -122, 1, -12)
+pageArea.Position = UDim2.new(0, 116, 0, 6)
+pageArea.BackgroundColor3 = Color3.fromRGB(27, 29, 36)
+pageArea.BorderSizePixel = 0
+pageArea.ZIndex = 5
+pageArea.Parent = mainHub
+Instance.new("UICorner", pageArea).CornerRadius = UDim.new(0, 7)
+
+local pageStroke = Instance.new("UIStroke")
+pageStroke.Color = Color3.fromRGB(135, 140, 152)
+pageStroke.Thickness = 1
+pageStroke.Parent = pageArea
+
+local homePage = Instance.new("ScrollingFrame")
+homePage.Name = "HomePage"
+homePage.Size = UDim2.new(1, -10, 1, -10)
+homePage.Position = UDim2.new(0, 5, 0, 5)
+homePage.BackgroundTransparency = 1
+homePage.BorderSizePixel = 0
+homePage.ScrollBarThickness = 2
+homePage.CanvasSize = UDim2.new(0, 0, 0, 0)
+homePage.ZIndex = 6
+homePage.Parent = pageArea
+
+local homeWelcome = Instance.new("TextLabel")
+homeWelcome.Size = UDim2.new(1, -8, 0, 26)
+homeWelcome.Position = UDim2.new(0, 4, 0, 4)
+homeWelcome.BackgroundTransparency = 1
+homeWelcome.Text = "Home • TRUECHANCE"
+homeWelcome.TextXAlignment = Enum.TextXAlignment.Left
+homeWelcome.TextColor3 = Color3.fromRGB(240, 242, 248)
+homeWelcome.Font = Enum.Font.GothamBold
+homeWelcome.TextSize = 13
+homeWelcome.ZIndex = 7
+homeWelcome.Parent = homePage
+
+local homeInfo = Instance.new("TextLabel")
+homeInfo.Size = UDim2.new(1, -8, 0, 46)
+homeInfo.Position = UDim2.new(0, 4, 0, 32)
+homeInfo.BackgroundTransparency = 1
+homeInfo.Text = "Chào mừng " .. player.Name .. " đã mở khóa TRUECHANCE."
+homeInfo.TextXAlignment = Enum.TextXAlignment.Left
+homeInfo.TextYAlignment = Enum.TextYAlignment.Top
+homeInfo.TextWrapped = true
+homeInfo.TextColor3 = Color3.fromRGB(190, 195, 208)
+homeInfo.Font = Enum.Font.Gotham
+homeInfo.TextSize = 11
+homeInfo.ZIndex = 7
+homeInfo.Parent = homePage
+
+local settingPage = Instance.new("ScrollingFrame")
+settingPage.Name = "SettingPage"
+settingPage.Size = UDim2.new(1, -10, 1, -10)
+settingPage.Position = UDim2.new(0, 5, 0, 5)
+settingPage.BackgroundTransparency = 1
+settingPage.BorderSizePixel = 0
+settingPage.ScrollBarThickness = 3
+settingPage.CanvasSize = UDim2.new(0, 0, 0, 205)
+settingPage.Visible = false
+settingPage.ZIndex = 6
+settingPage.Parent = pageArea
+
+local settingLayout = Instance.new("UIListLayout")
+settingLayout.Padding = UDim.new(0, 6)
+settingLayout.Parent = settingPage
+
+local function createTabButton(nameText, iconId, yPos, isDefault)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, -10, 0, 30)
+	btn.Position = UDim2.new(0, 5, 0, yPos)
+	btn.BackgroundColor3 = isDefault and Color3.fromRGB(44, 48, 60) or Color3.fromRGB(33, 36, 45)
+	btn.BorderSizePixel = 0
+	btn.Text = ""
+	btn.AutoButtonColor = false
+	btn.ZIndex = 6
+	btn.Parent = tabSidebar
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+	local icon = Instance.new("ImageLabel")
+	icon.Size = UDim2.new(0, 15, 0, 15)
+	icon.Position = UDim2.new(0, 8, 0.5, -7)
+	icon.BackgroundTransparency = 1
+	icon.Image = iconId
+	icon.ScaleType = Enum.ScaleType.Fit
+	icon.ZIndex = 7
+	icon.Parent = btn
+
+	local lbl = Instance.new("TextLabel")
+	lbl.Size = UDim2.new(1, -28, 1, 0)
+	lbl.Position = UDim2.new(0, 27, 0, 0)
+	lbl.BackgroundTransparency = 1
+	lbl.Text = nameText
+	lbl.TextXAlignment = Enum.TextXAlignment.Left
+	lbl.TextColor3 = Color3.fromRGB(238, 241, 248)
+	lbl.Font = Enum.Font.GothamBold
+	lbl.TextSize = 11
+	lbl.ZIndex = 7
+	lbl.Parent = btn
+
+	return btn
+end
+
+local homeTabBtn = createTabButton("Home", "rbxassetid://6026568198", 8, true)
+local settingTabBtn = createTabButton("Setting", "rbxassetid://6031280882", 44, false)
+
+local function switchTab(target)
+	playClickSound()
+	homePage.Visible = (target == "Home")
+	settingPage.Visible = (target == "Setting")
+	homeTabBtn.BackgroundColor3 = (target == "Home") and Color3.fromRGB(44, 48, 60) or Color3.fromRGB(33, 36, 45)
+	settingTabBtn.BackgroundColor3 = (target == "Setting") and Color3.fromRGB(44, 48, 60) or Color3.fromRGB(33, 36, 45)
+end
+
+homeTabBtn.MouseButton1Click:Connect(function()
+	switchTab("Home")
+end)
+
+settingTabBtn.MouseButton1Click:Connect(function()
+	switchTab("Setting")
+end)
+
+-- ================= CHỨC NĂNG TRONG SETTING =================
+local lowGraphicsEnabled = false
+local speedLoopEnabled = false
+local speedValue = 28
+local jumpLoopEnabled = false
+local jumpValue = 65
+local noclipEnabled = false
+
+local function applyLowGraphics(enable)
+	if enable then
+		pcall(function()
+			Lighting.GlobalShadows = false
+			Lighting.Technology = Enum.Technology.Compatibility
+		end)
+		for _, obj in ipairs(workspace:GetDescendants()) do
+			if obj:IsA("BasePart") then
+				pcall(function()
+					obj.Material = Enum.Material.SmoothPlastic
+					obj.Reflectance = 0
+				end)
+			elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Fire") or obj:IsA("Smoke") then
+				pcall(function()
+					obj.Enabled = false
+				end)
+			end
+		end
 	else
-		keyUnlocked = false
-		keyBarStroke.Color = Color3.fromRGB(135, 140, 152)
+		pcall(function()
+			Lighting.GlobalShadows = true
+		end)
+	end
+end
+
+local function fixCamera()
+	local cam = workspace.CurrentCamera
+	if cam then
+		cam.CameraType = Enum.CameraType.Custom
+		local char = player.Character
+		local hum = char and char:FindFirstChildOfClass("Humanoid")
+		if hum then
+			cam.CameraSubject = hum
+		end
+	end
+end
+
+-- Loop cho Speed / Jump / Noclip
+RunService.Heartbeat:Connect(function()
+	local char = player.Character
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	if hum then
+		if speedLoopEnabled then
+			hum.WalkSpeed = speedValue
+		end
+		if jumpLoopEnabled then
+			hum.UseJumpPower = true
+			hum.JumpPower = jumpValue
+		end
 	end
 end)
 
--- Hàm tạo 2 ảnh nhỏ, sát nhau ở đầu bên trái, ngồi lên thanh key ngang (KHÔNG phát sound click)
-local function createHeadImage(imageId, xOffset)
+RunService.Stepped:Connect(function()
+	if noclipEnabled and player.Character then
+		for _, part in ipairs(player.Character:GetDescendants()) do
+			if part:IsA("BasePart") and part.CanCollide then
+				part.CanCollide = false
+			end
+		end
+	end
+end)
+
+local function makeToggleRow(labelText, onChanged)
+	local row = Instance.new("Frame")
+	row.Size = UDim2.new(1, 0, 0, 30)
+	row.BackgroundColor3 = Color3.fromRGB(33, 36, 45)
+	row.BorderSizePixel = 0
+	row.ZIndex = 7
+	row.Parent = settingPage
+	Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
+
+	local lbl = Instance.new("TextLabel")
+	lbl.Size = UDim2.new(1, -56, 1, 0)
+	lbl.Position = UDim2.new(0, 8, 0, 0)
+	lbl.BackgroundTransparency = 1
+	lbl.Text = labelText
+	lbl.TextXAlignment = Enum.TextXAlignment.Left
+	lbl.TextColor3 = Color3.fromRGB(235, 238, 245)
+	lbl.Font = Enum.Font.GothamBold
+	lbl.TextSize = 11
+	lbl.ZIndex = 8
+	lbl.Parent = row
+
+	local state = false
+	local tgl = Instance.new("TextButton")
+	tgl.Size = UDim2.new(0, 42, 0, 20)
+	tgl.Position = UDim2.new(1, -48, 0.5, -10)
+	tgl.BackgroundColor3 = Color3.fromRGB(52, 56, 68)
+	tgl.BorderSizePixel = 0
+	tgl.Text = "OFF"
+	tgl.TextColor3 = Color3.fromRGB(210, 214, 224)
+	tgl.Font = Enum.Font.GothamBold
+	tgl.TextSize = 10
+	tgl.ZIndex = 8
+	tgl.Parent = row
+	Instance.new("UICorner", tgl).CornerRadius = UDim.new(0, 5)
+
+	tgl.MouseButton1Click:Connect(function()
+		playClickSound()
+		state = not state
+		tgl.Text = state and "ON" or "OFF"
+		tgl.BackgroundColor3 = state and Color3.fromRGB(75, 165, 110) or Color3.fromRGB(52, 56, 68)
+		onChanged(state)
+	end)
+end
+
+local function makeLoopAdjustRow(labelText, defaultVal, stepVal, minVal, maxVal, onToggle, onValueChange)
+	local row = Instance.new("Frame")
+	row.Size = UDim2.new(1, 0, 0, 32)
+	row.BackgroundColor3 = Color3.fromRGB(33, 36, 45)
+	row.BorderSizePixel = 0
+	row.ZIndex = 7
+	row.Parent = settingPage
+	Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
+
+	local currentVal = defaultVal
+	local enabled = false
+
+	local lbl = Instance.new("TextLabel")
+	lbl.Size = UDim2.new(1, -124, 1, 0)
+	lbl.Position = UDim2.new(0, 8, 0, 0)
+	lbl.BackgroundTransparency = 1
+	lbl.Text = labelText .. ": " .. tostring(currentVal)
+	lbl.TextXAlignment = Enum.TextXAlignment.Left
+	lbl.TextColor3 = Color3.fromRGB(235, 238, 245)
+	lbl.Font = Enum.Font.GothamBold
+	lbl.TextSize = 11
+	lbl.ZIndex = 8
+	lbl.Parent = row
+
+	local minusBtn = Instance.new("TextButton")
+	minusBtn.Size = UDim2.new(0, 20, 0, 20)
+	minusBtn.Position = UDim2.new(1, -114, 0.5, -10)
+	minusBtn.BackgroundColor3 = Color3.fromRGB(45, 49, 62)
+	minusBtn.Text = "-"
+	minusBtn.TextColor3 = Color3.fromRGB(240, 242, 248)
+	minusBtn.Font = Enum.Font.GothamBold
+	minusBtn.TextSize = 12
+	minusBtn.ZIndex = 8
+	minusBtn.Parent = row
+	Instance.new("UICorner", minusBtn).CornerRadius = UDim.new(0, 5)
+
+	local plusBtn = Instance.new("TextButton")
+	plusBtn.Size = UDim2.new(0, 20, 0, 20)
+	plusBtn.Position = UDim2.new(1, -91, 0.5, -10)
+	plusBtn.BackgroundColor3 = Color3.fromRGB(45, 49, 62)
+	plusBtn.Text = "+"
+	plusBtn.TextColor3 = Color3.fromRGB(240, 242, 248)
+	plusBtn.Font = Enum.Font.GothamBold
+	plusBtn.TextSize = 12
+	plusBtn.ZIndex = 8
+	plusBtn.Parent = row
+	Instance.new("UICorner", plusBtn).CornerRadius = UDim.new(0, 5)
+
+	local tgl = Instance.new("TextButton")
+	tgl.Size = UDim2.new(0, 38, 0, 20)
+	tgl.Position = UDim2.new(1, -44, 0.5, -10)
+	tgl.BackgroundColor3 = Color3.fromRGB(52, 56, 68)
+	tgl.BorderSizePixel = 0
+	tgl.Text = "OFF"
+	tgl.TextColor3 = Color3.fromRGB(210, 214, 224)
+	tgl.Font = Enum.Font.GothamBold
+	tgl.TextSize = 10
+	tgl.ZIndex = 8
+	tgl.Parent = row
+	Instance.new("UICorner", tgl).CornerRadius = UDim.new(0, 5)
+
+	local function refreshLabel()
+		lbl.Text = labelText .. ": " .. tostring(currentVal)
+		onValueChange(currentVal)
+	end
+
+	minusBtn.MouseButton1Click:Connect(function()
+		playClickSound()
+		currentVal = math.max(minVal, currentVal - stepVal)
+		refreshLabel()
+	end)
+
+	plusBtn.MouseButton1Click:Connect(function()
+		playClickSound()
+		currentVal = math.min(maxVal, currentVal + stepVal)
+		refreshLabel()
+	end)
+
+	tgl.MouseButton1Click:Connect(function()
+		playClickSound()
+		enabled = not enabled
+		tgl.Text = enabled and "ON" or "OFF"
+		tgl.BackgroundColor3 = enabled and Color3.fromRGB(75, 165, 110) or Color3.fromRGB(52, 56, 68)
+		onToggle(enabled)
+	end)
+end
+
+makeToggleRow("Low graphics", function(state)
+	lowGraphicsEnabled = state
+	applyLowGraphics(state)
+end)
+
+makeLoopAdjustRow("Speed loop", speedValue, 4, 16, 120, function(state)
+	speedLoopEnabled = state
+end, function(val)
+	speedValue = val
+end)
+
+makeLoopAdjustRow("Jump loop", jumpValue, 5, 50, 180, function(state)
+	jumpLoopEnabled = state
+end, function(val)
+	jumpValue = val
+end)
+
+makeToggleRow("Noclip", function(state)
+	noclipEnabled = state
+end)
+
+local fixCamRow = Instance.new("TextButton")
+fixCamRow.Size = UDim2.new(1, 0, 0, 30)
+fixCamRow.BackgroundColor3 = Color3.fromRGB(36, 40, 52)
+fixCamRow.BorderSizePixel = 0
+fixCamRow.Text = "Fix cam"
+fixCamRow.TextColor3 = Color3.fromRGB(240, 242, 248)
+fixCamRow.Font = Enum.Font.GothamBold
+fixCamRow.TextSize = 11
+fixCamRow.ZIndex = 7
+fixCamRow.Parent = settingPage
+Instance.new("UICorner", fixCamRow).CornerRadius = UDim.new(0, 6)
+
+fixCamRow.MouseButton1Click:Connect(function()
+	playClickSound()
+	fixCamera()
+end)
+
+-- ================= 2 ẢNH NGỒI TRÊN / NGOÀI ĐỈNH GUI =================
+local function createTopOutsideImage(imageId, xOffset)
 	local imgSize = 54
-	local jumpHeight = 18
+	local jumpHeight = 16 -- Mức nhảy cố định: spam click không nhảy cao hơn
+
+	-- Nằm ngay trên đỉnh ngoài của mainFrame (y = -imgSize)
+	local basePosition = UDim2.new(0, xOffset, 0, -imgSize)
 
 	local imgBtn = Instance.new("ImageButton")
 	imgBtn.Size = UDim2.new(0, imgSize, 0, imgSize)
-	local basePosition = UDim2.new(0, xOffset, 1, -(barHeight + barBottomMargin + imgSize))
 	imgBtn.Position = basePosition
 	imgBtn.BackgroundTransparency = 1
 	imgBtn.BorderSizePixel = 0
 	imgBtn.Image = "rbxassetid://" .. tostring(imageId)
 	imgBtn.ScaleType = Enum.ScaleType.Fit
 	imgBtn.AutoButtonColor = false
-	imgBtn.ZIndex = 4
-	imgBtn.Parent = contentFrame
+	imgBtn.ZIndex = 10
+	imgBtn.Parent = outerRoot
 
 	task.delay(0.8, function()
 		if not imgBtn.IsLoaded then
@@ -210,6 +616,7 @@ local function createHeadImage(imageId, xOffset)
 			currentTween:Cancel()
 		end
 
+		-- Luôn nhảy tới cùng 1 mức cố định (không cộng dồn khi spam click)
 		local targetPos = UDim2.new(
 			basePosition.X.Scale,
 			basePosition.X.Offset,
@@ -223,6 +630,7 @@ local function createHeadImage(imageId, xOffset)
 		})
 		currentTween:Play()
 
+		-- Rơi xuống chậm khoảng 0.5s
 		task.delay(0.11, function()
 			if myToken == clickToken then
 				local fallInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
@@ -235,15 +643,31 @@ local function createHeadImage(imageId, xOffset)
 	end)
 end
 
-createHeadImage("70844413352953", 12)
-createHeadImage("131733394534816", 70)
+-- 2 ảnh nằm sát nhau ở đầu bên trái, ngồi trên mép ngoài đỉnh GUI
+createTopOutsideImage("70844413352953", 12)
+createTopOutsideImage("131733394534816", 70)
+
+-- Xử lý nhập key -> mở vào GUI chính
+local function unlockMainGui()
+	keyScreen.Visible = false
+	mainHub.Visible = true
+end
+
+keyBarBox.FocusLost:Connect(function()
+	if keyBarBox.Text == REQUIRED_KEY then
+		keyBarStroke.Color = Color3.fromRGB(95, 200, 130)
+		unlockMainGui()
+	else
+		keyBarStroke.Color = Color3.fromRGB(220, 95, 95)
+	end
+end)
 
 local minimized = false
 minBtn.MouseButton1Click:Connect(function()
 	playClickSound()
 	minimized = not minimized
 	contentFrame.Visible = not minimized
-	mainFrame.Size = minimized and UDim2.new(0, 380, 0, 32) or UDim2.new(0, 380, 0, 152)
+	mainFrame.Size = minimized and UDim2.new(1, 0, 0, TOP_HEIGHT) or UDim2.new(1, 0, 1, 0)
 end)
 
 closeBtn.MouseButton1Click:Connect(function()
