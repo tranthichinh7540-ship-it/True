@@ -9,6 +9,12 @@ local player = Players.LocalPlayer
 local REQUIRED_KEY = "true"
 local CLICK_SOUND_ID = "rbxassetid://6895079853"
 
+-- Icon IDs (không dùng emoji)
+local ICON_HOME = "rbxassetid://6026568198"
+local ICON_SETTING = "rbxassetid://6031280882"
+local ICON_UNLOCK = "rbxassetid://6026568226"
+local ICON_LOCK = "rbxassetid://6026568210"
+
 local guiName = "TRUECHANCE"
 if CoreGui:FindFirstChild(guiName) then
 	CoreGui[guiName]:Destroy()
@@ -43,18 +49,21 @@ local function playClickSound()
 	end)
 end
 
--- Kích thước: khu nhập key giữ cũ, GUI chính kéo dài hơn
+-- Kích thước: khu nhập key giữ form cũ, GUI chính kéo dài hơn
 local KEY_W, KEY_H = 380, 152
-local MAIN_W, MAIN_H = 440, 232
+local MAIN_W, MAIN_H = 470, 232
 local TOP_H = 32
+
+local isUnlocked = false
+local minimized = false
+local guiLocked = false
 
 local outerRoot = Instance.new("Frame")
 outerRoot.Name = "TRUECHANCE_Root"
 outerRoot.Size = UDim2.new(0, KEY_W, 0, KEY_H)
 outerRoot.Position = UDim2.new(0.5, -KEY_W / 2, 0.5, -KEY_H / 2)
 outerRoot.BackgroundTransparency = 1
-outerRoot.Active = true
-outerRoot.Draggable = true
+outerRoot.Active = false
 outerRoot.Parent = screenGui
 
 local mainFrame = Instance.new("Frame")
@@ -63,6 +72,8 @@ mainFrame.Size = UDim2.new(1, 0, 1, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20, 21, 26)
 mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
+mainFrame.Active = true
+mainFrame.Draggable = true
 mainFrame.ZIndex = 2
 mainFrame.Parent = outerRoot
 Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
@@ -87,6 +98,7 @@ topFix.Position = UDim2.new(0, 0, 1, -10)
 topFix.BackgroundColor3 = Color3.fromRGB(26, 28, 34)
 topFix.BorderSizePixel = 0
 topFix.ZIndex = 3
+topBar.Parent = mainFrame
 topFix.Parent = topBar
 
 local divider = Instance.new("Frame")
@@ -109,29 +121,26 @@ titleLabel.TextSize = 13
 titleLabel.ZIndex = 4
 titleLabel.Parent = topBar
 
--- Icon Lock GUI ở trên thanh tiêu đề
-local guiLocked = false
-local lockBtn = Instance.new("TextButton")
+-- Nút Lock GUI dùng Icon ID (không dùng emoji)
+local lockBtn = Instance.new("ImageButton")
 lockBtn.Name = "LockGuiBtn"
 lockBtn.Size = UDim2.new(0, 22, 0, 22)
 lockBtn.Position = UDim2.new(1, -78, 0.5, -11)
 lockBtn.BackgroundColor3 = Color3.fromRGB(36, 39, 48)
 lockBtn.BorderSizePixel = 0
-lockBtn.Text = "🔓"
-lockBtn.TextColor3 = Color3.fromRGB(225, 230, 240)
-lockBtn.Font = Enum.Font.GothamBold
-lockBtn.TextSize = 12
+lockBtn.Image = ICON_UNLOCK
+lockBtn.ImageColor3 = Color3.fromRGB(225, 230, 240)
+lockBtn.ScaleType = Enum.ScaleType.Fit
 lockBtn.ZIndex = 5
 lockBtn.Parent = topBar
 Instance.new("UICorner", lockBtn).CornerRadius = UDim.new(0, 6)
 
-lockBtn.MouseButton1Click:Connect(function()
-	playClickSound()
-	guiLocked = not guiLocked
-	outerRoot.Draggable = not guiLocked
-	lockBtn.Text = guiLocked and "🔒" or "🔓"
-	lockBtn.BackgroundColor3 = guiLocked and Color3.fromRGB(65, 55, 35) or Color3.fromRGB(36, 39, 48)
-end)
+local lockPad = Instance.new("UIPadding")
+lockPad.PaddingTop = UDim.new(0, 4)
+lockPad.PaddingBottom = UDim.new(0, 4)
+lockPad.PaddingLeft = UDim.new(0, 4)
+lockPad.PaddingRight = UDim.new(0, 4)
+lockPad.Parent = lockBtn
 
 local minBtn = Instance.new("TextButton")
 minBtn.Size = UDim2.new(0, 22, 0, 22)
@@ -163,6 +172,8 @@ contentFrame.Size = UDim2.new(1, -16, 1, -42)
 contentFrame.Position = UDim2.new(0, 8, 0, 36)
 contentFrame.BackgroundColor3 = Color3.fromRGB(24, 26, 32)
 contentFrame.BorderSizePixel = 0
+contentFrame.ClipsDescendants = true
+contentFrame.Active = false
 contentFrame.ZIndex = 3
 contentFrame.Parent = mainFrame
 Instance.new("UICorner", contentFrame).CornerRadius = UDim.new(0, 8)
@@ -177,6 +188,7 @@ local keyScreen = Instance.new("Frame")
 keyScreen.Name = "KeyScreen"
 keyScreen.Size = UDim2.new(1, 0, 1, 0)
 keyScreen.BackgroundTransparency = 1
+keyScreen.Active = false
 keyScreen.ZIndex = 4
 keyScreen.Parent = contentFrame
 
@@ -216,16 +228,18 @@ local mainHub = Instance.new("Frame")
 mainHub.Name = "MainHub"
 mainHub.Size = UDim2.new(1, 0, 1, 0)
 mainHub.BackgroundTransparency = 1
+mainHub.Active = false
 mainHub.Visible = false
 mainHub.ZIndex = 4
 mainHub.Parent = contentFrame
 
 local tabSidebar = Instance.new("Frame")
 tabSidebar.Name = "Sidebar"
-tabSidebar.Size = UDim2.new(0, 110, 1, -12)
+tabSidebar.Size = UDim2.new(0, 114, 1, -12)
 tabSidebar.Position = UDim2.new(0, 6, 0, 6)
 tabSidebar.BackgroundColor3 = Color3.fromRGB(28, 31, 39)
 tabSidebar.BorderSizePixel = 0
+tabSidebar.Active = false
 tabSidebar.ZIndex = 5
 tabSidebar.Parent = mainHub
 Instance.new("UICorner", tabSidebar).CornerRadius = UDim.new(0, 7)
@@ -237,10 +251,12 @@ tabStroke.Parent = tabSidebar
 
 local pageArea = Instance.new("Frame")
 pageArea.Name = "PageArea"
-pageArea.Size = UDim2.new(1, -128, 1, -12)
-pageArea.Position = UDim2.new(0, 122, 0, 6)
+pageArea.Size = UDim2.new(1, -132, 1, -12)
+pageArea.Position = UDim2.new(0, 126, 0, 6)
 pageArea.BackgroundColor3 = Color3.fromRGB(27, 29, 36)
 pageArea.BorderSizePixel = 0
+pageArea.ClipsDescendants = true
+pageArea.Active = false
 pageArea.ZIndex = 5
 pageArea.Parent = mainHub
 Instance.new("UICorner", pageArea).CornerRadius = UDim.new(0, 7)
@@ -255,6 +271,7 @@ homePage.Name = "HomePage"
 homePage.Size = UDim2.new(1, -10, 1, -10)
 homePage.Position = UDim2.new(0, 5, 0, 5)
 homePage.BackgroundTransparency = 1
+homePage.Active = false
 homePage.ZIndex = 6
 homePage.Parent = pageArea
 
@@ -274,8 +291,9 @@ settingPage.Size = UDim2.new(1, -10, 1, -10)
 settingPage.Position = UDim2.new(0, 5, 0, 5)
 settingPage.BackgroundTransparency = 1
 settingPage.BorderSizePixel = 0
-settingPage.ScrollBarThickness = 3
-settingPage.CanvasSize = UDim2.new(0, 0, 0, 205)
+settingPage.ScrollBarThickness = 2
+settingPage.CanvasSize = UDim2.new(0, 0, 0, 198)
+settingPage.ClipsDescendants = true
 settingPage.Visible = false
 settingPage.ZIndex = 6
 settingPage.Parent = pageArea
@@ -320,8 +338,8 @@ local function createTabButton(nameText, iconId, yPos, isDefault)
 	return btn
 end
 
-local homeTabBtn = createTabButton("Home", "rbxassetid://6026568198", 8, true)
-local settingTabBtn = createTabButton("Setting", "rbxassetid://6031280882", 44, false)
+local homeTabBtn = createTabButton("Home", ICON_HOME, 8, true)
+local settingTabBtn = createTabButton("Setting", ICON_SETTING, 44, false)
 
 local function switchTab(target)
 	playClickSound()
@@ -431,6 +449,7 @@ local function fixCamera()
 end
 
 RunService.Heartbeat:Connect(function()
+	if minimized then return end
 	local char = player.Character
 	local hum = char and char:FindFirstChildOfClass("Humanoid")
 	if hum then
@@ -462,6 +481,7 @@ local function makeToggleRow(labelText, onChanged)
 	row.Size = UDim2.new(1, 0, 0, 30)
 	row.BackgroundColor3 = Color3.fromRGB(33, 36, 45)
 	row.BorderSizePixel = 0
+	row.Active = false
 	row.ZIndex = 7
 	row.Parent = settingPage
 	Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
@@ -506,6 +526,7 @@ local function makeLoopAdjustRow(labelText, defaultVal, stepVal, minVal, maxVal,
 	row.Size = UDim2.new(1, 0, 0, 32)
 	row.BackgroundColor3 = Color3.fromRGB(33, 36, 45)
 	row.BorderSizePixel = 0
+	row.Active = false
 	row.ZIndex = 7
 	row.Parent = settingPage
 	Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
@@ -658,11 +679,18 @@ task.delay(0.8, function()
 	end
 end)
 
-local isUnlocked = false
 local basePos1 = UDim2.new(0, 12, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
 local basePos2 = UDim2.new(0, 70, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
 
 local function syncImagePositions()
+	if minimized then
+		imgBtn1.Visible = false
+		imgBtn2.Visible = false
+		return
+	end
+	imgBtn1.Visible = true
+	imgBtn2.Visible = true
+
 	if not isUnlocked then
 		basePos1 = UDim2.new(0, 12, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
 		basePos2 = UDim2.new(0, 70, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
@@ -715,6 +743,22 @@ end
 bindBounce(imgBtn1, function() return basePos1 end)
 bindBounce(imgBtn2, function() return basePos2 end)
 
+local function applyMinimizeState()
+	local activeW = isUnlocked and MAIN_W or KEY_W
+	local activeH = isUnlocked and MAIN_H or KEY_H
+
+	if minimized then
+		contentFrame.Visible = false
+		mainFrame.Size = UDim2.new(0, activeW, 0, TOP_H)
+		outerRoot.Size = UDim2.new(0, activeW, 0, TOP_H)
+	else
+		contentFrame.Visible = true
+		mainFrame.Size = UDim2.new(0, activeW, 0, activeH)
+		outerRoot.Size = UDim2.new(0, activeW, 0, activeH)
+	end
+	syncImagePositions()
+end
+
 local function unlockMainGui()
 	if isUnlocked then return end
 	isUnlocked = true
@@ -723,7 +767,7 @@ local function unlockMainGui()
 
 	outerRoot.Size = UDim2.new(0, MAIN_W, 0, MAIN_H)
 	outerRoot.Position = UDim2.new(0.5, -MAIN_W / 2, 0.5, -MAIN_H / 2 + 16)
-	syncImagePositions()
+	applyMinimizeState()
 end
 
 keyBarBox.FocusLost:Connect(function()
@@ -735,20 +779,25 @@ keyBarBox.FocusLost:Connect(function()
 	end
 end)
 
-local minimized = false
+lockBtn.MouseButton1Click:Connect(function()
+	playClickSound()
+	guiLocked = not guiLocked
+	mainFrame.Draggable = not guiLocked
+	lockBtn.Image = guiLocked and ICON_LOCK or ICON_UNLOCK
+	lockBtn.BackgroundColor3 = guiLocked and Color3.fromRGB(65, 55, 35) or Color3.fromRGB(36, 39, 48)
+end)
+
 minBtn.MouseButton1Click:Connect(function()
 	playClickSound()
 	minimized = not minimized
-	contentFrame.Visible = not minimized
-	if minimized then
-		mainFrame.Size = UDim2.new(1, 0, 0, TOP_H)
-	else
-		mainFrame.Size = UDim2.new(1, 0, 1, 0)
-	end
+	applyMinimizeState()
 end)
 
 closeBtn.MouseButton1Click:Connect(function()
 	playClickSound()
+	noclipEnabled = false
+	speedLoopEnabled = false
+	jumpLoopEnabled = false
 	task.delay(0.08, function()
 		screenGui:Destroy()
 	end)
