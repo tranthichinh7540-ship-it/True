@@ -41,11 +41,11 @@ local function playClickSound()
 	end)
 end
 
--- Khung chính phong cách WindUI (mở rộng chiều cao nhẹ để gọn cả Dropdown + 2 ảnh + thanh key)
+-- Khung chính phong cách WindUI với viền màu xám nhạt
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "TRUECHANCE_Main"
-mainFrame.Size = UDim2.new(0, 380, 0, 178)
-mainFrame.Position = UDim2.new(0.5, -190, 0.5, -89)
+mainFrame.Size = UDim2.new(0, 380, 0, 152)
+mainFrame.Position = UDim2.new(0.5, -190, 0.5, -76)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20, 21, 26)
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
@@ -56,8 +56,8 @@ mainFrame.Parent = screenGui
 Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
 
 local mainStroke = Instance.new("UIStroke")
-mainStroke.Color = Color3.fromRGB(52, 55, 68)
-mainStroke.Thickness = 1.2
+mainStroke.Color = Color3.fromRGB(165, 170, 182) -- Viền màu xám nhạt
+mainStroke.Thickness = 1.4
 mainStroke.Parent = mainFrame
 
 -- Thanh Topbar WindUI
@@ -80,7 +80,7 @@ topFix.Parent = topBar
 local divider = Instance.new("Frame")
 divider.Size = UDim2.new(1, 0, 0, 1)
 divider.Position = UDim2.new(0, 0, 1, -1)
-divider.BackgroundColor3 = Color3.fromRGB(45, 48, 60)
+divider.BackgroundColor3 = Color3.fromRGB(120, 125, 138)
 divider.BorderSizePixel = 0
 divider.Parent = topBar
 
@@ -128,97 +128,11 @@ contentFrame.Parent = mainFrame
 Instance.new("UICorner", contentFrame).CornerRadius = UDim.new(0, 8)
 
 local contentStroke = Instance.new("UIStroke")
-contentStroke.Color = Color3.fromRGB(40, 43, 54)
+contentStroke.Color = Color3.fromRGB(145, 150, 162) -- Viền xám nhạt cho khung nội dung
 contentStroke.Thickness = 1
 contentStroke.Parent = contentFrame
 
--- Phần Dropdown kiểu WindUI bên phải phía trên
-local dropdownOptions = {"Option 1", "Option 2", "Option 3"}
-local selectedOption = dropdownOptions[1]
-local dropdownOpen = false
-
-local dropHeader = Instance.new("TextButton")
-dropHeader.Name = "DropdownHeader"
-dropHeader.Size = UDim2.new(0, 165, 0, 26)
-dropHeader.Position = UDim2.new(1, -173, 0, 10)
-dropHeader.BackgroundColor3 = Color3.fromRGB(31, 34, 43)
-dropHeader.BorderSizePixel = 0
-dropHeader.Text = "  " .. selectedOption .. "  ▾"
-dropHeader.TextXAlignment = Enum.TextXAlignment.Left
-dropHeader.TextColor3 = Color3.fromRGB(235, 238, 245)
-dropHeader.Font = Enum.Font.GothamBold
-dropHeader.TextSize = 11
-dropHeader.ZIndex = 7
-dropHeader.Parent = contentFrame
-Instance.new("UICorner", dropHeader).CornerRadius = UDim.new(0, 6)
-
-local dropHeaderStroke = Instance.new("UIStroke")
-dropHeaderStroke.Color = Color3.fromRGB(56, 60, 76)
-dropHeaderStroke.Thickness = 1
-dropHeaderStroke.Parent = dropHeader
-
-local dropList = Instance.new("Frame")
-dropList.Name = "DropdownList"
-dropList.Size = UDim2.new(0, 165, 0, #dropdownOptions * 24 + 4)
-dropList.Position = UDim2.new(1, -173, 0, 39)
-dropList.BackgroundColor3 = Color3.fromRGB(28, 31, 40)
-dropList.BorderSizePixel = 0
-dropList.Visible = false
-dropList.ZIndex = 12
-dropList.Parent = contentFrame
-Instance.new("UICorner", dropList).CornerRadius = UDim.new(0, 6)
-
-local dropListStroke = Instance.new("UIStroke")
-dropListStroke.Color = Color3.fromRGB(64, 69, 88)
-dropListStroke.Thickness = 1
-dropListStroke.Parent = dropList
-
-local dropLayout = Instance.new("UIListLayout")
-dropLayout.Padding = UDim.new(0, 2)
-dropLayout.Parent = dropList
-
-local dropPad = Instance.new("UIPadding")
-dropPad.PaddingTop = UDim.new(0, 2)
-dropPad.PaddingBottom = UDim.new(0, 2)
-dropPad.PaddingLeft = UDim.new(0, 2)
-dropPad.PaddingRight = UDim.new(0, 2)
-dropPad.Parent = dropList
-
-local function refreshDropdownHeader()
-	dropHeader.Text = "  " .. selectedOption .. (dropdownOpen and "  ▴" or "  ▾")
-end
-
-for _, opt in ipairs(dropdownOptions) do
-	local optBtn = Instance.new("TextButton")
-	optBtn.Size = UDim2.new(1, 0, 0, 22)
-	optBtn.BackgroundColor3 = Color3.fromRGB(35, 39, 50)
-	optBtn.BorderSizePixel = 0
-	optBtn.Text = "  " .. opt
-	optBtn.TextXAlignment = Enum.TextXAlignment.Left
-	optBtn.TextColor3 = Color3.fromRGB(220, 224, 234)
-	optBtn.Font = Enum.Font.Gotham
-	optBtn.TextSize = 11
-	optBtn.ZIndex = 13
-	optBtn.Parent = dropList
-	Instance.new("UICorner", optBtn).CornerRadius = UDim.new(0, 5)
-
-	optBtn.MouseButton1Click:Connect(function()
-		playClickSound()
-		selectedOption = opt
-		dropdownOpen = false
-		dropList.Visible = false
-		refreshDropdownHeader()
-	end)
-end
-
-dropHeader.MouseButton1Click:Connect(function()
-	playClickSound()
-	dropdownOpen = not dropdownOpen
-	dropList.Visible = dropdownOpen
-	refreshDropdownHeader()
-end)
-
--- Thanh ngang phía dưới (vị trí mũi tên chỉ) dùng làm ô nhập key luôn
+-- Thanh ngang phía dưới dùng làm ô nhập key
 local barHeight = 24
 local barBottomMargin = 10
 local keyBarBox = Instance.new("TextBox")
@@ -238,10 +152,11 @@ keyBarBox.Parent = contentFrame
 Instance.new("UICorner", keyBarBox).CornerRadius = UDim.new(0, 6)
 
 local keyBarStroke = Instance.new("UIStroke")
-keyBarStroke.Color = Color3.fromRGB(54, 58, 72)
+keyBarStroke.Color = Color3.fromRGB(135, 140, 152)
 keyBarStroke.Thickness = 1
 keyBarStroke.Parent = keyBarBox
 
+-- Chữ màu gradient xám trắng
 local textGradient = Instance.new("UIGradient")
 textGradient.Color = ColorSequence.new({
 	ColorSequenceKeypoint.new(0, Color3.fromRGB(135, 138, 148)),
@@ -257,7 +172,7 @@ keyBarBox.FocusLost:Connect(function()
 		keyBarStroke.Color = Color3.fromRGB(95, 200, 130)
 	else
 		keyUnlocked = false
-		keyBarStroke.Color = Color3.fromRGB(54, 58, 72)
+		keyBarStroke.Color = Color3.fromRGB(135, 140, 152)
 	end
 end)
 
@@ -328,7 +243,7 @@ minBtn.MouseButton1Click:Connect(function()
 	playClickSound()
 	minimized = not minimized
 	contentFrame.Visible = not minimized
-	mainFrame.Size = minimized and UDim2.new(0, 380, 0, 32) or UDim2.new(0, 380, 0, 178)
+	mainFrame.Size = minimized and UDim2.new(0, 380, 0, 32) or UDim2.new(0, 380, 0, 152)
 end)
 
 closeBtn.MouseButton1Click:Connect(function()
