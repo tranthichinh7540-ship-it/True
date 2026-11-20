@@ -43,9 +43,9 @@ local function playClickSound()
 	end)
 end
 
--- Kích thước chuẩn: bước nhập key giữ form cũ gọn gàng, mở khóa xong mở rộng sang GUI chính
+-- Kích thước: khu nhập key giữ cũ, GUI chính kéo dài hơn
 local KEY_W, KEY_H = 380, 152
-local MAIN_W, MAIN_H = 396, 232
+local MAIN_W, MAIN_H = 440, 232
 local TOP_H = 32
 
 local outerRoot = Instance.new("Frame")
@@ -98,7 +98,7 @@ divider.ZIndex = 4
 divider.Parent = topBar
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -76, 1, 0)
+titleLabel.Size = UDim2.new(1, -106, 1, 0)
 titleLabel.Position = UDim2.new(0, 12, 0, 0)
 titleLabel.BackgroundTransparency = 1
 titleLabel.Text = "TRUECHANCE"
@@ -108,6 +108,30 @@ titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextSize = 13
 titleLabel.ZIndex = 4
 titleLabel.Parent = topBar
+
+-- Icon Lock GUI ở trên thanh tiêu đề
+local guiLocked = false
+local lockBtn = Instance.new("TextButton")
+lockBtn.Name = "LockGuiBtn"
+lockBtn.Size = UDim2.new(0, 22, 0, 22)
+lockBtn.Position = UDim2.new(1, -78, 0.5, -11)
+lockBtn.BackgroundColor3 = Color3.fromRGB(36, 39, 48)
+lockBtn.BorderSizePixel = 0
+lockBtn.Text = "🔓"
+lockBtn.TextColor3 = Color3.fromRGB(225, 230, 240)
+lockBtn.Font = Enum.Font.GothamBold
+lockBtn.TextSize = 12
+lockBtn.ZIndex = 5
+lockBtn.Parent = topBar
+Instance.new("UICorner", lockBtn).CornerRadius = UDim.new(0, 6)
+
+lockBtn.MouseButton1Click:Connect(function()
+	playClickSound()
+	guiLocked = not guiLocked
+	outerRoot.Draggable = not guiLocked
+	lockBtn.Text = guiLocked and "🔒" or "🔓"
+	lockBtn.BackgroundColor3 = guiLocked and Color3.fromRGB(65, 55, 35) or Color3.fromRGB(36, 39, 48)
+end)
 
 local minBtn = Instance.new("TextButton")
 minBtn.Size = UDim2.new(0, 22, 0, 22)
@@ -148,7 +172,7 @@ contentStroke.Color = Color3.fromRGB(145, 150, 162)
 contentStroke.Thickness = 1
 contentStroke.Parent = contentFrame
 
--- ================= MÀN HÌNH NHẬP KEY (GIỮ FORM CŨ) =================
+-- ================= MÀN HÌNH NHẬP KEY (GIỮ NGUYÊN NHƯ CŨ) =================
 local keyScreen = Instance.new("Frame")
 keyScreen.Name = "KeyScreen"
 keyScreen.Size = UDim2.new(1, 0, 1, 0)
@@ -198,7 +222,7 @@ mainHub.Parent = contentFrame
 
 local tabSidebar = Instance.new("Frame")
 tabSidebar.Name = "Sidebar"
-tabSidebar.Size = UDim2.new(0, 106, 1, -12)
+tabSidebar.Size = UDim2.new(0, 110, 1, -12)
 tabSidebar.Position = UDim2.new(0, 6, 0, 6)
 tabSidebar.BackgroundColor3 = Color3.fromRGB(28, 31, 39)
 tabSidebar.BorderSizePixel = 0
@@ -213,8 +237,8 @@ tabStroke.Parent = tabSidebar
 
 local pageArea = Instance.new("Frame")
 pageArea.Name = "PageArea"
-pageArea.Size = UDim2.new(1, -124, 1, -12)
-pageArea.Position = UDim2.new(0, 118, 0, 6)
+pageArea.Size = UDim2.new(1, -128, 1, -12)
+pageArea.Position = UDim2.new(0, 122, 0, 6)
 pageArea.BackgroundColor3 = Color3.fromRGB(27, 29, 36)
 pageArea.BorderSizePixel = 0
 pageArea.ZIndex = 5
@@ -226,42 +250,23 @@ pageStroke.Color = Color3.fromRGB(135, 140, 152)
 pageStroke.Thickness = 1
 pageStroke.Parent = pageArea
 
-local homePage = Instance.new("ScrollingFrame")
+local homePage = Instance.new("Frame")
 homePage.Name = "HomePage"
 homePage.Size = UDim2.new(1, -10, 1, -10)
 homePage.Position = UDim2.new(0, 5, 0, 5)
 homePage.BackgroundTransparency = 1
-homePage.BorderSizePixel = 0
-homePage.ScrollBarThickness = 2
-homePage.CanvasSize = UDim2.new(0, 0, 0, 0)
 homePage.ZIndex = 6
 homePage.Parent = pageArea
 
-local homeTitle = Instance.new("TextLabel")
-homeTitle.Size = UDim2.new(1, -8, 0, 24)
-homeTitle.Position = UDim2.new(0, 4, 0, 4)
-homeTitle.BackgroundTransparency = 1
-homeTitle.Text = "Home"
-homeTitle.TextXAlignment = Enum.TextXAlignment.Left
-homeTitle.TextColor3 = Color3.fromRGB(240, 242, 248)
-homeTitle.Font = Enum.Font.GothamBold
-homeTitle.TextSize = 13
-homeTitle.ZIndex = 7
-homeTitle.Parent = homePage
-
-local homeDesc = Instance.new("TextLabel")
-homeDesc.Size = UDim2.new(1, -8, 0, 44)
-homeDesc.Position = UDim2.new(0, 4, 0, 30)
-homeDesc.BackgroundTransparency = 1
-homeDesc.Text = "Chào " .. player.Name .. ", đã vào TRUECHANCE."
-homeDesc.TextXAlignment = Enum.TextXAlignment.Left
-homeDesc.TextYAlignment = Enum.TextYAlignment.Top
-homeDesc.TextWrapped = true
-homeDesc.TextColor3 = Color3.fromRGB(190, 195, 208)
-homeDesc.Font = Enum.Font.Gotham
-homeDesc.TextSize = 11
-homeDesc.ZIndex = 7
-homeDesc.Parent = homePage
+local comingSoonLabel = Instance.new("TextLabel")
+comingSoonLabel.Size = UDim2.new(1, 0, 1, 0)
+comingSoonLabel.BackgroundTransparency = 1
+comingSoonLabel.Text = "coming soon"
+comingSoonLabel.TextColor3 = Color3.fromRGB(220, 224, 235)
+comingSoonLabel.Font = Enum.Font.GothamBold
+comingSoonLabel.TextSize = 15
+comingSoonLabel.ZIndex = 7
+comingSoonLabel.Parent = homePage
 
 local settingPage = Instance.new("ScrollingFrame")
 settingPage.Name = "SettingPage"
@@ -340,29 +345,76 @@ local speedValue = 28
 local jumpLoopEnabled = false
 local jumpValue = 65
 local noclipEnabled = false
+local savedPartCollide = {}
 
 local function applyLowGraphics(enable)
 	if enable then
 		pcall(function()
 			Lighting.GlobalShadows = false
-			Lighting.Technology = Enum.Technology.Compatibility
+			Lighting.FogEnd = 100000
+			if Lighting:FindFirstChildOfClass("Atmosphere") then
+				Lighting:FindFirstChildOfClass("Atmosphere").Density = 0
+			end
+			for _, eff in ipairs(Lighting:GetChildren()) do
+				if eff:IsA("PostEffect") then
+					eff.Enabled = false
+				end
+			end
+		end)
+		pcall(function()
+			settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
 		end)
 		for _, obj in ipairs(workspace:GetDescendants()) do
 			if obj:IsA("BasePart") then
 				pcall(function()
 					obj.Material = Enum.Material.SmoothPlastic
 					obj.Reflectance = 0
+					obj.CastShadow = false
 				end)
-			elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Fire") or obj:IsA("Smoke") then
+			elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Fire") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
 				pcall(function()
 					obj.Enabled = false
+				end)
+			elseif obj:IsA("Decal") or obj:IsA("Texture") then
+				pcall(function()
+					obj.Transparency = 1
 				end)
 			end
 		end
 	else
 		pcall(function()
 			Lighting.GlobalShadows = true
+			for _, eff in ipairs(Lighting:GetChildren()) do
+				if eff:IsA("PostEffect") then
+					eff.Enabled = true
+				end
+			end
 		end)
+		pcall(function()
+			settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
+		end)
+	end
+end
+
+local function setNoclip(enable)
+	noclipEnabled = enable
+	local char = player.Character
+	if not char then return end
+	if enable then
+		savedPartCollide = {}
+		for _, part in ipairs(char:GetDescendants()) do
+			if part:IsA("BasePart") then
+				savedPartCollide[part] = part.CanCollide
+				part.CanCollide = false
+			end
+		end
+	else
+		for part, oldVal in pairs(savedPartCollide) do
+			if part and part.Parent then
+				part.CanCollide = oldVal
+			end
+		end
+		savedPartCollide = {}
 	end
 end
 
@@ -395,7 +447,10 @@ end)
 RunService.Stepped:Connect(function()
 	if noclipEnabled and player.Character then
 		for _, part in ipairs(player.Character:GetDescendants()) do
-			if part:IsA("BasePart") and part.CanCollide then
+			if part:IsA("BasePart") then
+				if savedPartCollide[part] == nil then
+					savedPartCollide[part] = part.CanCollide
+				end
 				part.CanCollide = false
 			end
 		end
@@ -550,7 +605,7 @@ end, function(val)
 end)
 
 makeToggleRow("Noclip", function(state)
-	noclipEnabled = state
+	setNoclip(state)
 end)
 
 local fixCamRow = Instance.new("TextButton")
@@ -604,16 +659,14 @@ task.delay(0.8, function()
 end)
 
 local isUnlocked = false
-local basePos1 = UDim2.new(0, 12, 1, -(barHeight + barBottomMargin + imgSize + 36))
-local basePos2 = UDim2.new(0, 70, 1, -(barHeight + barBottomMargin + imgSize + 36))
+local basePos1 = UDim2.new(0, 12, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
+local basePos2 = UDim2.new(0, 70, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
 
 local function syncImagePositions()
 	if not isUnlocked then
-		-- Lúc nhập key: 2 ảnh ngồi sát nhau ở đầu bên trái trên thanh key ngang như cũ
 		basePos1 = UDim2.new(0, 12, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
 		basePos2 = UDim2.new(0, 70, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
 	else
-		-- Sau khi nhập key: 2 ảnh nhảy lên nằm trên mép ngoài đỉnh GUI
 		basePos1 = UDim2.new(0, 12, 0, -imgSize)
 		basePos2 = UDim2.new(0, 70, 0, -imgSize)
 	end
