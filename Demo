@@ -3,7 +3,6 @@ local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local SoundService = game:GetService("SoundService")
 local RunService = game:GetService("RunService")
-local Lighting = game:GetService("Lighting")
 
 local player = Players.LocalPlayer
 local REQUIRED_KEY = "true"
@@ -65,46 +64,70 @@ local function pulseButton(btn)
 end
 
 local KEY_W, KEY_H = 380, 152
-local MAIN_W, MAIN_H = 470, 232
-local TOP_H = 32
+local MAIN_W, MAIN_H = 470, 240
+local TOP_H = 34
 
 local isUnlocked = false
 local minimized = false
 local guiLocked = false
 
+-- Khung chính hiện đại, bo mềm, viền xám nhạt
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "TRUECHANCE_Main"
 mainFrame.Size = UDim2.new(0, KEY_W, 0, KEY_H)
 mainFrame.Position = UDim2.new(0.5, -KEY_W / 2, 0.5, -KEY_H / 2)
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 21, 26)
+mainFrame.BackgroundColor3 = Color3.fromRGB(22, 24, 30)
 mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
 mainFrame.Active = true
 mainFrame.Draggable = true
 mainFrame.ZIndex = 2
 mainFrame.Parent = screenGui
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
 
 local mainStroke = Instance.new("UIStroke")
 mainStroke.Color = Color3.fromRGB(165, 170, 182)
-mainStroke.Thickness = 1.4
+mainStroke.Thickness = 1.3
 mainStroke.Parent = mainFrame
+
+local guiGradient = Instance.new("UIGradient")
+guiGradient.Name = "GuiColorGradient"
+guiGradient.Enabled = false
+guiGradient.Rotation = 35
+guiGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(160, 168, 185)),
+})
+guiGradient.Parent = mainFrame
+
+local rootScale = Instance.new("UIScale")
+rootScale.Scale = 0.86
+rootScale.Parent = mainFrame
+
+local function playAppearEffect()
+	rootScale.Scale = 0.88
+	TweenService:Create(
+		rootScale,
+		TweenInfo.new(0.26, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+		{ Scale = 1 }
+	):Play()
+end
 
 local topBar = Instance.new("Frame")
 topBar.Name = "TopBar"
 topBar.Size = UDim2.new(1, 0, 0, TOP_H)
-topBar.BackgroundColor3 = Color3.fromRGB(26, 28, 34)
+topBar.BackgroundColor3 = Color3.fromRGB(29, 32, 40)
 topBar.BorderSizePixel = 0
 topBar.Active = false
 topBar.ZIndex = 3
 topBar.Parent = mainFrame
-Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 10)
+Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 12)
 
 local topFix = Instance.new("Frame")
 topFix.Name = "TopFix"
-topFix.Size = UDim2.new(1, 0, 0, 10)
-topFix.Position = UDim2.new(0, 0, 1, -10)
-topFix.BackgroundColor3 = Color3.fromRGB(26, 28, 34)
+topFix.Size = UDim2.new(1, 0, 0, 12)
+topFix.Position = UDim2.new(0, 0, 1, -12)
+topFix.BackgroundColor3 = Color3.fromRGB(29, 32, 40)
 topFix.BorderSizePixel = 0
 topFix.Active = false
 topFix.ZIndex = 3
@@ -121,12 +144,12 @@ divider.ZIndex = 4
 divider.Parent = topBar
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -106, 1, 0)
-titleLabel.Position = UDim2.new(0, 12, 0, 0)
+titleLabel.Size = UDim2.new(1, -108, 1, 0)
+titleLabel.Position = UDim2.new(0, 14, 0, 0)
 titleLabel.BackgroundTransparency = 1
 titleLabel.Text = "TRUECHANCE"
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-titleLabel.TextColor3 = Color3.fromRGB(240, 242, 248)
+titleLabel.TextColor3 = Color3.fromRGB(242, 244, 250)
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextSize = 13
 titleLabel.ZIndex = 4
@@ -137,7 +160,7 @@ local lockBtn = Instance.new("ImageButton")
 lockBtn.Name = "LockGuiBtn"
 lockBtn.Size = UDim2.new(0, 22, 0, 22)
 lockBtn.Position = UDim2.new(1, -78, 0.5, -11)
-lockBtn.BackgroundColor3 = Color3.fromRGB(36, 39, 48)
+lockBtn.BackgroundColor3 = Color3.fromRGB(38, 42, 52)
 lockBtn.BorderSizePixel = 0
 lockBtn.Image = ICON_UNLOCK
 lockBtn.ImageColor3 = Color3.fromRGB(225, 230, 240)
@@ -156,7 +179,7 @@ lockPad.Parent = lockBtn
 local minBtn = Instance.new("TextButton")
 minBtn.Size = UDim2.new(0, 22, 0, 22)
 minBtn.Position = UDim2.new(1, -52, 0.5, -11)
-minBtn.BackgroundColor3 = Color3.fromRGB(36, 39, 48)
+minBtn.BackgroundColor3 = Color3.fromRGB(38, 42, 52)
 minBtn.Text = "-"
 minBtn.TextColor3 = Color3.fromRGB(210, 214, 224)
 minBtn.Font = Enum.Font.GothamBold
@@ -168,7 +191,7 @@ Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 6)
 local closeBtn = Instance.new("TextButton")
 closeBtn.Size = UDim2.new(0, 22, 0, 22)
 closeBtn.Position = UDim2.new(1, -26, 0.5, -11)
-closeBtn.BackgroundColor3 = Color3.fromRGB(48, 28, 32)
+closeBtn.BackgroundColor3 = Color3.fromRGB(52, 30, 35)
 closeBtn.Text = "×"
 closeBtn.TextColor3 = Color3.fromRGB(255, 120, 120)
 closeBtn.Font = Enum.Font.GothamBold
@@ -179,22 +202,22 @@ Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
 
 local contentFrame = Instance.new("Frame")
 contentFrame.Name = "Content"
-contentFrame.Size = UDim2.new(1, -16, 1, -42)
-contentFrame.Position = UDim2.new(0, 8, 0, 36)
-contentFrame.BackgroundColor3 = Color3.fromRGB(24, 26, 32)
+contentFrame.Size = UDim2.new(1, -16, 1, -44)
+contentFrame.Position = UDim2.new(0, 8, 0, 38)
+contentFrame.BackgroundColor3 = Color3.fromRGB(26, 29, 36)
 contentFrame.BorderSizePixel = 0
 contentFrame.ClipsDescendants = true
 contentFrame.Active = false
 contentFrame.ZIndex = 3
 contentFrame.Parent = mainFrame
-Instance.new("UICorner", contentFrame).CornerRadius = UDim.new(0, 8)
+Instance.new("UICorner", contentFrame).CornerRadius = UDim.new(0, 9)
 
 local contentStroke = Instance.new("UIStroke")
 contentStroke.Color = Color3.fromRGB(145, 150, 162)
 contentStroke.Thickness = 1
 contentStroke.Parent = contentFrame
 
--- ================= MÀN HÌNH NHẬP KEY =================
+-- ================= MÀN HÌNH NHẬP KEY (GIỮ FORM CŨ) =================
 local keyScreen = Instance.new("Frame")
 keyScreen.Name = "KeyScreen"
 keyScreen.Size = UDim2.new(1, 0, 1, 0)
@@ -210,7 +233,7 @@ local keyBarBox = Instance.new("TextBox")
 keyBarBox.Name = "KeyBarInput"
 keyBarBox.Size = UDim2.new(1, -16, 0, barHeight)
 keyBarBox.Position = UDim2.new(0, 8, 1, -(barHeight + barBottomMargin))
-keyBarBox.BackgroundColor3 = Color3.fromRGB(32, 35, 44)
+keyBarBox.BackgroundColor3 = Color3.fromRGB(34, 37, 47)
 keyBarBox.BorderSizePixel = 0
 keyBarBox.Text = ""
 keyBarBox.PlaceholderText = "key enter here"
@@ -250,13 +273,13 @@ local tabSidebar = Instance.new("Frame")
 tabSidebar.Name = "Sidebar"
 tabSidebar.Size = UDim2.new(0, 114, 1, -12)
 tabSidebar.Position = UDim2.new(0, 6, 0, 6)
-tabSidebar.BackgroundColor3 = Color3.fromRGB(28, 31, 39)
+tabSidebar.BackgroundColor3 = Color3.fromRGB(30, 33, 42)
 tabSidebar.BorderSizePixel = 0
 tabSidebar.ClipsDescendants = true
 tabSidebar.Active = false
 tabSidebar.ZIndex = 5
 tabSidebar.Parent = mainHub
-Instance.new("UICorner", tabSidebar).CornerRadius = UDim.new(0, 7)
+Instance.new("UICorner", tabSidebar).CornerRadius = UDim.new(0, 8)
 
 local tabStroke = Instance.new("UIStroke")
 tabStroke.Color = Color3.fromRGB(135, 140, 152)
@@ -267,13 +290,13 @@ local pageArea = Instance.new("Frame")
 pageArea.Name = "PageArea"
 pageArea.Size = UDim2.new(1, -132, 1, -12)
 pageArea.Position = UDim2.new(0, 126, 0, 6)
-pageArea.BackgroundColor3 = Color3.fromRGB(27, 29, 36)
+pageArea.BackgroundColor3 = Color3.fromRGB(29, 32, 40)
 pageArea.BorderSizePixel = 0
 pageArea.ClipsDescendants = true
 pageArea.Active = false
 pageArea.ZIndex = 5
 pageArea.Parent = mainHub
-Instance.new("UICorner", pageArea).CornerRadius = UDim.new(0, 7)
+Instance.new("UICorner", pageArea).CornerRadius = UDim.new(0, 8)
 
 local pageStroke = Instance.new("UIStroke")
 pageStroke.Color = Color3.fromRGB(135, 140, 152)
@@ -294,7 +317,7 @@ local comingSoonLabel = Instance.new("TextLabel")
 comingSoonLabel.Size = UDim2.new(1, 0, 1, 0)
 comingSoonLabel.BackgroundTransparency = 1
 comingSoonLabel.Text = "coming soon"
-comingSoonLabel.TextColor3 = Color3.fromRGB(220, 224, 235)
+comingSoonLabel.TextColor3 = Color3.fromRGB(225, 229, 240)
 comingSoonLabel.Font = Enum.Font.GothamBold
 comingSoonLabel.TextSize = 15
 comingSoonLabel.ZIndex = 7
@@ -307,27 +330,27 @@ settingPage.Position = UDim2.new(0, 5, 0, 5)
 settingPage.BackgroundTransparency = 1
 settingPage.BorderSizePixel = 0
 settingPage.ScrollBarThickness = 2
-settingPage.CanvasSize = UDim2.new(0, 0, 0, 198)
+settingPage.CanvasSize = UDim2.new(0, 0, 0, 205)
 settingPage.ClipsDescendants = true
 settingPage.Visible = false
 settingPage.ZIndex = 6
 settingPage.Parent = pageArea
 
 local settingLayout = Instance.new("UIListLayout")
-settingLayout.Padding = UDim.new(0, 6)
+settingLayout.Padding = UDim.new(0, 7)
 settingLayout.Parent = settingPage
 
 local function createTabButton(nameText, iconId, yPos, isDefault)
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(1, -10, 0, 30)
 	btn.Position = UDim2.new(0, 5, 0, yPos)
-	btn.BackgroundColor3 = isDefault and Color3.fromRGB(48, 53, 68) or Color3.fromRGB(33, 36, 45)
+	btn.BackgroundColor3 = isDefault and Color3.fromRGB(48, 53, 68) or Color3.fromRGB(35, 39, 49)
 	btn.BorderSizePixel = 0
 	btn.Text = ""
 	btn.AutoButtonColor = false
 	btn.ZIndex = 6
 	btn.Parent = tabSidebar
-	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 7)
 
 	local icon = Instance.new("ImageLabel")
 	icon.Size = UDim2.new(0, 15, 0, 15)
@@ -375,13 +398,13 @@ local function switchTab(target)
 	TweenService:Create(
 		homeTabBtn,
 		TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-		{ BackgroundColor3 = (target == "Home") and Color3.fromRGB(48, 53, 68) or Color3.fromRGB(33, 36, 45) }
+		{ BackgroundColor3 = (target == "Home") and Color3.fromRGB(48, 53, 68) or Color3.fromRGB(35, 39, 49) }
 	):Play()
 
 	TweenService:Create(
 		settingTabBtn,
 		TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-		{ BackgroundColor3 = (target == "Setting") and Color3.fromRGB(48, 53, 68) or Color3.fromRGB(33, 36, 45) }
+		{ BackgroundColor3 = (target == "Setting") and Color3.fromRGB(48, 53, 68) or Color3.fromRGB(35, 39, 49) }
 	):Play()
 
 	animatePageIn(target == "Home" and homePage or settingPage)
@@ -395,372 +418,247 @@ settingTabBtn.MouseButton1Click:Connect(function()
 	switchTab("Setting")
 end)
 
--- ================= CHỨC NĂNG TRONG SETTING =================
-local speedLoopEnabled = false
-local speedValue = 28
-local defaultWalkSpeed = 16
+-- ================= SETTING: ĐỔI MÀU GUI & GRADIENT GUI =================
+local colorPresets = {
+	Color3.fromRGB(22, 24, 30),
+	Color3.fromRGB(34, 24, 38),
+	Color3.fromRGB(20, 34, 36),
+	Color3.fromRGB(36, 26, 28),
+	Color3.fromRGB(28, 30, 44),
+}
 
-local jumpLoopEnabled = false
-local jumpValue = 65
-local defaultJumpPower = 50
-local defaultJumpHeight = 7.2
+local gradientPresets = {
+	{
+		name = "Silver",
+		seq = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 158, 178)),
+		}),
+	},
+	{
+		name = "Aurora",
+		seq = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(165, 225, 255)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(225, 175, 255)),
+		}),
+	},
+	{
+		name = "Sunset",
+		seq = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 195, 165)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 160, 210)),
+		}),
+	},
+}
 
-local noclipEnabled = false
-local savedPartCollide = {}
+local function applyCustomGuiColor(col)
+	TweenService:Create(
+		mainFrame,
+		TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ BackgroundColor3 = col }
+	):Play()
 
-local function captureDefaultMovement(hum)
-	if not hum then return end
-	if not speedLoopEnabled and hum.WalkSpeed > 0 then
-		defaultWalkSpeed = hum.WalkSpeed
-	end
-	if not jumpLoopEnabled then
-		if hum.UseJumpPower and hum.JumpPower > 0 then
-			defaultJumpPower = hum.JumpPower
-		elseif hum.JumpHeight > 0 then
-			defaultJumpHeight = hum.JumpHeight
-		end
-	end
+	local lighter = Color3.new(
+		math.clamp(col.R + 0.035, 0, 1),
+		math.clamp(col.G + 0.035, 0, 1),
+		math.clamp(col.B + 0.035, 0, 1)
+	)
+	contentFrame.BackgroundColor3 = lighter
+	topBar.BackgroundColor3 = lighter
+	topFix.BackgroundColor3 = lighter
 end
 
-local function setSpeedLoop(enable)
-	speedLoopEnabled = enable
-	local char = player.Character
-	local hum = char and char:FindFirstChildOfClass("Humanoid")
-	if enable then
-		if hum then
-			captureDefaultMovement(hum)
-			hum.WalkSpeed = speedValue
-		end
-	else
-		if hum then
-			hum.WalkSpeed = defaultWalkSpeed
-		end
-	end
-end
+-- Khối 1: Đổi màu GUI tùy thích (swatch nhanh + nhập RGB / #HEX)
+local colorCard = Instance.new("Frame")
+colorCard.Size = UDim2.new(1, 0, 0, 72)
+colorCard.BackgroundColor3 = Color3.fromRGB(35, 39, 49)
+colorCard.BorderSizePixel = 0
+colorCard.Active = false
+colorCard.ZIndex = 7
+colorCard.Parent = settingPage
+Instance.new("UICorner", colorCard).CornerRadius = UDim.new(0, 7)
 
-local function setJumpLoop(enable)
-	jumpLoopEnabled = enable
-	local char = player.Character
-	local hum = char and char:FindFirstChildOfClass("Humanoid")
-	if enable then
-		if hum then
-			captureDefaultMovement(hum)
-			hum.UseJumpPower = true
-			hum.JumpPower = jumpValue
-		end
-	else
-		if hum then
-			if hum.UseJumpPower then
-				hum.JumpPower = defaultJumpPower
-			else
-				hum.JumpHeight = defaultJumpHeight
-			end
-		end
-	end
-end
+local colorTitle = Instance.new("TextLabel")
+colorTitle.Size = UDim2.new(1, -16, 0, 20)
+colorTitle.Position = UDim2.new(0, 8, 0, 4)
+colorTitle.BackgroundTransparency = 1
+colorTitle.Text = "GUI Color"
+colorTitle.TextXAlignment = Enum.TextXAlignment.Left
+colorTitle.TextColor3 = Color3.fromRGB(240, 242, 248)
+colorTitle.Font = Enum.Font.GothamBold
+colorTitle.TextSize = 11
+colorTitle.ZIndex = 8
+colorTitle.Parent = colorCard
 
-player.CharacterAdded:Connect(function(char)
-	local hum = char:WaitForChild("Humanoid", 5)
-	if hum then
-		defaultWalkSpeed = hum.WalkSpeed
-		defaultJumpPower = hum.JumpPower
-		defaultJumpHeight = hum.JumpHeight
-	end
-end)
+local swatchHolder = Instance.new("Frame")
+swatchHolder.Size = UDim2.new(0, 130, 0, 22)
+swatchHolder.Position = UDim2.new(0, 8, 0, 30)
+swatchHolder.BackgroundTransparency = 1
+swatchHolder.ZIndex = 8
+swatchHolder.Parent = colorCard
 
-local function applyLowGraphics(enable)
-	if enable then
-		pcall(function()
-			Lighting.GlobalShadows = false
-			Lighting.FogEnd = 100000
-			if Lighting:FindFirstChildOfClass("Atmosphere") then
-				Lighting:FindFirstChildOfClass("Atmosphere").Density = 0
-			end
-			for _, eff in ipairs(Lighting:GetChildren()) do
-				if eff:IsA("PostEffect") then
-					eff.Enabled = false
-				end
-			end
-		end)
-		pcall(function()
-			settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-		end)
-		for _, obj in ipairs(workspace:GetDescendants()) do
-			if obj:IsA("BasePart") then
-				pcall(function()
-					obj.Material = Enum.Material.SmoothPlastic
-					obj.Reflectance = 0
-					obj.CastShadow = false
-				end)
-			elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Fire") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
-				pcall(function()
-					obj.Enabled = false
-				end)
-			elseif obj:IsA("Decal") or obj:IsA("Texture") then
-				pcall(function()
-					obj.Transparency = 1
-				end)
-			end
-		end
-	else
-		pcall(function()
-			Lighting.GlobalShadows = true
-			for _, eff in ipairs(Lighting:GetChildren()) do
-				if eff:IsA("PostEffect") then
-					eff.Enabled = true
-				end
-			end
-		end)
-		pcall(function()
-			settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
-		end)
-	end
-end
+local swatchLayout = Instance.new("UIListLayout")
+swatchLayout.FillDirection = Enum.FillDirection.Horizontal
+swatchLayout.Padding = UDim.new(0, 6)
+swatchLayout.Parent = swatchHolder
 
-local function setNoclip(enable)
-	noclipEnabled = enable
-	local char = player.Character
-	if not char then return end
-	if enable then
-		savedPartCollide = {}
-		for _, part in ipairs(char:GetDescendants()) do
-			if part:IsA("BasePart") then
-				savedPartCollide[part] = part.CanCollide
-				part.CanCollide = false
-			end
-		end
-	else
-		for part, oldVal in pairs(savedPartCollide) do
-			if part and part.Parent then
-				part.CanCollide = oldVal
-			end
-		end
-		savedPartCollide = {}
-	end
-end
+for _, c in ipairs(colorPresets) do
+	local sw = Instance.new("TextButton")
+	sw.Size = UDim2.new(0, 20, 0, 20)
+	sw.BackgroundColor3 = c
+	sw.BorderSizePixel = 0
+	sw.Text = ""
+	sw.ZIndex = 9
+	sw.Parent = swatchHolder
+	Instance.new("UICorner", sw).CornerRadius = UDim.new(0, 5)
 
-local function fixCamera()
-	local cam = workspace.CurrentCamera
-	if cam then
-		cam.CameraType = Enum.CameraType.Custom
-		local char = player.Character
-		local hum = char and char:FindFirstChildOfClass("Humanoid")
-		if hum then
-			cam.CameraSubject = hum
-		end
-	end
-end
+	local swStroke = Instance.new("UIStroke")
+	swStroke.Color = Color3.fromRGB(165, 170, 182)
+	swStroke.Thickness = 1
+	swStroke.Parent = sw
 
-RunService.Heartbeat:Connect(function()
-	local char = player.Character
-	local hum = char and char:FindFirstChildOfClass("Humanoid")
-	if hum then
-		if speedLoopEnabled then
-			hum.WalkSpeed = speedValue
-		end
-		if jumpLoopEnabled then
-			hum.UseJumpPower = true
-			hum.JumpPower = jumpValue
-		end
-	end
-end)
-
-RunService.Stepped:Connect(function()
-	if noclipEnabled and player.Character then
-		for _, part in ipairs(player.Character:GetDescendants()) do
-			if part:IsA("BasePart") then
-				if savedPartCollide[part] == nil then
-					savedPartCollide[part] = part.CanCollide
-				end
-				part.CanCollide = false
-			end
-		end
-	end
-end)
-
-local function makeToggleRow(labelText, onChanged)
-	local row = Instance.new("Frame")
-	row.Size = UDim2.new(1, 0, 0, 30)
-	row.BackgroundColor3 = Color3.fromRGB(33, 36, 45)
-	row.BorderSizePixel = 0
-	row.Active = false
-	row.ZIndex = 7
-	row.Parent = settingPage
-	Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
-
-	local lbl = Instance.new("TextLabel")
-	lbl.Size = UDim2.new(1, -56, 1, 0)
-	lbl.Position = UDim2.new(0, 8, 0, 0)
-	lbl.BackgroundTransparency = 1
-	lbl.Text = labelText
-	lbl.TextXAlignment = Enum.TextXAlignment.Left
-	lbl.TextColor3 = Color3.fromRGB(235, 238, 245)
-	lbl.Font = Enum.Font.GothamBold
-	lbl.TextSize = 11
-	lbl.ZIndex = 8
-	lbl.Parent = row
-
-	local state = false
-	local tgl = Instance.new("TextButton")
-	tgl.Size = UDim2.new(0, 42, 0, 20)
-	tgl.Position = UDim2.new(1, -48, 0.5, -10)
-	tgl.BackgroundColor3 = Color3.fromRGB(52, 56, 68)
-	tgl.BorderSizePixel = 0
-	tgl.Text = "OFF"
-	tgl.TextColor3 = Color3.fromRGB(210, 214, 224)
-	tgl.Font = Enum.Font.GothamBold
-	tgl.TextSize = 10
-	tgl.ZIndex = 8
-	tgl.Parent = row
-	Instance.new("UICorner", tgl).CornerRadius = UDim.new(0, 5)
-
-	tgl.MouseButton1Click:Connect(function()
+	sw.MouseButton1Click:Connect(function()
 		playClickSound()
-		pulseButton(tgl)
-		state = not state
-		tgl.Text = state and "ON" or "OFF"
-		TweenService:Create(
-			tgl,
-			TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-			{ BackgroundColor3 = state and Color3.fromRGB(75, 165, 110) or Color3.fromRGB(52, 56, 68) }
-		):Play()
-		onChanged(state)
+		pulseButton(sw)
+		applyCustomGuiColor(c)
 	end)
 end
 
-local function makeLoopAdjustRow(labelText, defaultVal, stepVal, minVal, maxVal, onToggle, onValueChange)
-	local row = Instance.new("Frame")
-	row.Size = UDim2.new(1, 0, 0, 32)
-	row.BackgroundColor3 = Color3.fromRGB(33, 36, 45)
-	row.BorderSizePixel = 0
-	row.Active = false
-	row.ZIndex = 7
-	row.Parent = settingPage
-	Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
+local customColorBox = Instance.new("TextBox")
+customColorBox.Size = UDim2.new(0, 128, 0, 22)
+customColorBox.Position = UDim2.new(1, -136, 0, 30)
+customColorBox.BackgroundColor3 = Color3.fromRGB(25, 28, 36)
+customColorBox.BorderSizePixel = 0
+customColorBox.Text = ""
+customColorBox.PlaceholderText = "R,G,B or #HEX"
+customColorBox.PlaceholderColor3 = Color3.fromRGB(145, 150, 162)
+customColorBox.TextColor3 = Color3.fromRGB(245, 247, 252)
+customColorBox.Font = Enum.Font.Gotham
+customColorBox.TextSize = 11
+customColorBox.ClearTextOnFocus = false
+customColorBox.ZIndex = 9
+customColorBox.Parent = colorCard
+Instance.new("UICorner", customColorBox).CornerRadius = UDim.new(0, 5)
 
-	local currentVal = defaultVal
-	local enabled = false
-
-	local lbl = Instance.new("TextLabel")
-	lbl.Size = UDim2.new(1, -124, 1, 0)
-	lbl.Position = UDim2.new(0, 8, 0, 0)
-	lbl.BackgroundTransparency = 1
-	lbl.Text = labelText .. ": " .. tostring(currentVal)
-	lbl.TextXAlignment = Enum.TextXAlignment.Left
-	lbl.TextColor3 = Color3.fromRGB(235, 238, 245)
-	lbl.Font = Enum.Font.GothamBold
-	lbl.TextSize = 11
-	lbl.ZIndex = 8
-	lbl.Parent = row
-
-	local minusBtn = Instance.new("TextButton")
-	minusBtn.Size = UDim2.new(0, 20, 0, 20)
-	minusBtn.Position = UDim2.new(1, -114, 0.5, -10)
-	minusBtn.BackgroundColor3 = Color3.fromRGB(45, 49, 62)
-	minusBtn.Text = "-"
-	minusBtn.TextColor3 = Color3.fromRGB(240, 242, 248)
-	minusBtn.Font = Enum.Font.GothamBold
-	minusBtn.TextSize = 12
-	minusBtn.ZIndex = 8
-	minusBtn.Parent = row
-	Instance.new("UICorner", minusBtn).CornerRadius = UDim.new(0, 5)
-
-	local plusBtn = Instance.new("TextButton")
-	plusBtn.Size = UDim2.new(0, 20, 0, 20)
-	plusBtn.Position = UDim2.new(1, -91, 0.5, -10)
-	plusBtn.BackgroundColor3 = Color3.fromRGB(45, 49, 62)
-	plusBtn.Text = "+"
-	plusBtn.TextColor3 = Color3.fromRGB(240, 242, 248)
-	plusBtn.Font = Enum.Font.GothamBold
-	plusBtn.TextSize = 12
-	minusBtn.ZIndex = 8
-	plusBtn.ZIndex = 8
-	plusBtn.Parent = row
-	Instance.new("UICorner", plusBtn).CornerRadius = UDim.new(0, 5)
-
-	local tgl = Instance.new("TextButton")
-	tgl.Size = UDim2.new(0, 38, 0, 20)
-	tgl.Position = UDim2.new(1, -44, 0.5, -10)
-	tgl.BackgroundColor3 = Color3.fromRGB(52, 56, 68)
-	tgl.BorderSizePixel = 0
-	tgl.Text = "OFF"
-	tgl.TextColor3 = Color3.fromRGB(210, 214, 224)
-	tgl.Font = Enum.Font.GothamBold
-	tgl.TextSize = 10
-	tgl.ZIndex = 8
-	tgl.Parent = row
-	Instance.new("UICorner", tgl).CornerRadius = UDim.new(0, 5)
-
-	local function refreshLabel()
-		lbl.Text = labelText .. ": " .. tostring(currentVal)
-		onValueChange(currentVal)
+local function parseColorInput(str)
+	local clean = str:gsub("^%s+", ""):gsub("%s+$", "")
+	if clean:sub(1, 1) == "#" and #clean == 7 then
+		local r = tonumber(clean:sub(2, 3), 16)
+		local g = tonumber(clean:sub(4, 5), 16)
+		local b = tonumber(clean:sub(6, 7), 16)
+		if r and g and b then
+			return Color3.fromRGB(r, g, b)
+		end
 	end
-
-	minusBtn.MouseButton1Click:Connect(function()
-		playClickSound()
-		pulseButton(minusBtn)
-		currentVal = math.max(minVal, currentVal - stepVal)
-		refreshLabel()
-	end)
-
-	plusBtn.MouseButton1Click:Connect(function()
-		playClickSound()
-		pulseButton(plusBtn)
-		currentVal = math.min(maxVal, currentVal + stepVal)
-		refreshLabel()
-	end)
-
-	tgl.MouseButton1Click:Connect(function()
-		playClickSound()
-		pulseButton(tgl)
-		enabled = not enabled
-		tgl.Text = enabled and "ON" or "OFF"
-		TweenService:Create(
-			tgl,
-			TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-			{ BackgroundColor3 = enabled and Color3.fromRGB(75, 165, 110) or Color3.fromRGB(52, 56, 68) }
-		):Play()
-		onToggle(enabled)
-	end)
+	local rStr, gStr, bStr = clean:match("^(%d+)%s*,%s*(%d+)%s*,%s*(%d+)$")
+	if rStr and gStr and bStr then
+		return Color3.fromRGB(
+			math.clamp(tonumber(rStr), 0, 255),
+			math.clamp(tonumber(gStr), 0, 255),
+			math.clamp(tonumber(bStr), 0, 255)
+		)
+	end
+	return nil
 end
 
-makeToggleRow("Low graphics", function(state)
-	applyLowGraphics(state)
+customColorBox.FocusLost:Connect(function()
+	local parsed = parseColorInput(customColorBox.Text)
+	if parsed then
+		applyCustomGuiColor(parsed)
+	end
 end)
 
-makeLoopAdjustRow("Speed loop", speedValue, 4, 16, 120, function(state)
-	setSpeedLoop(state)
-end, function(val)
-	speedValue = val
-end)
+-- Khối 2: Bật/tắt Gradient GUI & đổi kiểu gradient
+local gradCard = Instance.new("Frame")
+gradCard.Size = UDim2.new(1, 0, 0, 68)
+gradCard.BackgroundColor3 = Color3.fromRGB(35, 39, 49)
+gradCard.BorderSizePixel = 0
+gradCard.Active = false
+gradCard.ZIndex = 7
+gradCard.Parent = settingPage
+Instance.new("UICorner", gradCard).CornerRadius = UDim.new(0, 7)
 
-makeLoopAdjustRow("Jump loop", jumpValue, 5, 50, 180, function(state)
-	setJumpLoop(state)
-end, function(val)
-	jumpValue = val
-end)
+local gradLabel = Instance.new("TextLabel")
+gradLabel.Size = UDim2.new(1, -66, 0, 22)
+gradLabel.Position = UDim2.new(0, 8, 0, 4)
+gradLabel.BackgroundTransparency = 1
+gradLabel.Text = "GUI Gradient"
+gradLabel.TextXAlignment = Enum.TextXAlignment.Left
+gradLabel.TextColor3 = Color3.fromRGB(240, 242, 248)
+gradLabel.Font = Enum.Font.GothamBold
+gradLabel.TextSize = 11
+gradLabel.ZIndex = 8
+gradLabel.Parent = gradCard
 
-makeToggleRow("Noclip", function(state)
-	setNoclip(state)
-end)
+local gradEnabled = false
+local gradToggleBtn = Instance.new("TextButton")
+gradToggleBtn.Size = UDim2.new(0, 44, 0, 20)
+gradToggleBtn.Position = UDim2.new(1, -52, 0, 5)
+gradToggleBtn.BackgroundColor3 = Color3.fromRGB(52, 56, 68)
+gradToggleBtn.BorderSizePixel = 0
+gradToggleBtn.Text = "OFF"
+gradToggleBtn.TextColor3 = Color3.fromRGB(220, 224, 234)
+gradToggleBtn.Font = Enum.Font.GothamBold
+gradToggleBtn.TextSize = 10
+gradToggleBtn.ZIndex = 8
+gradToggleBtn.Parent = gradCard
+Instance.new("UICorner", gradToggleBtn).CornerRadius = UDim.new(0, 5)
 
-local fixCamRow = Instance.new("TextButton")
-fixCamRow.Size = UDim2.new(1, 0, 0, 30)
-fixCamRow.BackgroundColor3 = Color3.fromRGB(36, 40, 52)
-fixCamRow.BorderSizePixel = 0
-fixCamRow.Text = "Fix cam"
-fixCamRow.TextColor3 = Color3.fromRGB(240, 242, 248)
-fixCamRow.Font = Enum.Font.GothamBold
-fixCamRow.TextSize = 11
-fixCamRow.ZIndex = 7
-fixCamRow.Parent = settingPage
-Instance.new("UICorner", fixCamRow).CornerRadius = UDim.new(0, 6)
-
-fixCamRow.MouseButton1Click:Connect(function()
+gradToggleBtn.MouseButton1Click:Connect(function()
 	playClickSound()
-	pulseButton(fixCamRow)
-	fixCamera()
+	pulseButton(gradToggleBtn)
+	gradEnabled = not gradEnabled
+	guiGradient.Enabled = gradEnabled
+	gradToggleBtn.Text = gradEnabled and "ON" or "OFF"
+	TweenService:Create(
+		gradToggleBtn,
+		TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ BackgroundColor3 = gradEnabled and Color3.fromRGB(75, 165, 110) or Color3.fromRGB(52, 56, 68) }
+	):Play()
 end)
+
+local presetRow = Instance.new("Frame")
+presetRow.Size = UDim2.new(1, -16, 0, 22)
+presetRow.Position = UDim2.new(0, 8, 0, 34)
+presetRow.BackgroundTransparency = 1
+presetRow.ZIndex = 8
+presetRow.Parent = gradCard
+
+local presetLayout = Instance.new("UIListLayout")
+presetLayout.FillDirection = Enum.FillDirection.Horizontal
+presetLayout.Padding = UDim.new(0, 6)
+presetLayout.Parent = presetRow
+
+for idx, p in ipairs(gradientPresets) do
+	local pBtn = Instance.new("TextButton")
+	pBtn.Size = UDim2.new(0, 82, 0, 22)
+	pBtn.BackgroundColor3 = idx == 1 and Color3.fromRGB(54, 60, 76) or Color3.fromRGB(27, 30, 38)
+	pBtn.BorderSizePixel = 0
+	pBtn.Text = p.name
+	pBtn.TextColor3 = Color3.fromRGB(235, 238, 246)
+	pBtn.Font = Enum.Font.GothamBold
+	pBtn.TextSize = 10
+	pBtn.ZIndex = 9
+	pBtn.Parent = presetRow
+	Instance.new("UICorner", pBtn).CornerRadius = UDim.new(0, 5)
+
+	pBtn.MouseButton1Click:Connect(function()
+		playClickSound()
+		pulseButton(pBtn)
+		guiGradient.Color = p.seq
+		if not gradEnabled then
+			gradEnabled = true
+			guiGradient.Enabled = true
+			gradToggleBtn.Text = "ON"
+			gradToggleBtn.BackgroundColor3 = Color3.fromRGB(75, 165, 110)
+		end
+		for _, child in ipairs(presetRow:GetChildren()) do
+			if child:IsA("TextButton") then
+				child.BackgroundColor3 = (child == pBtn) and Color3.fromRGB(54, 60, 76) or Color3.fromRGB(27, 30, 38)
+			end
+		end
+	end)
+end
 
 -- ================= 2 ẢNH RƠI MƯỢT KHÔNG GIẬT & BÁM SÁT GUI =================
 local imgSize = 54
@@ -797,10 +695,9 @@ task.delay(0.8, function()
 	end
 end)
 
--- Trạng thái chuyển động độc lập, không tạo instance mới khi spam click
 local state1 = {
 	offset = 0,
-	phase = "idle", -- "rising" | "falling" | "idle"
+	phase = "idle",
 	timer = 0,
 	startOffset = 0,
 }
@@ -835,7 +732,6 @@ local function stepImageMotion(st, dt)
 	elseif st.phase == "falling" then
 		st.timer += dt
 		local alpha = math.clamp(st.timer / fallDuration, 0, 1)
-		-- Rơi chậm tự nhiên, tăng tốc nhẹ ở cuối nhưng bắt đầu mượt không khựng
 		local eased = alpha * alpha * (3 - 2 * alpha)
 		st.offset = st.startOffset * (1 - eased)
 		if alpha >= 1 then
@@ -907,6 +803,7 @@ local function unlockMainGui()
 	mainFrame.Size = UDim2.new(0, MAIN_W, 0, MAIN_H)
 	mainFrame.Position = UDim2.new(curPos.X.Scale, curPos.X.Offset - 45, curPos.Y.Scale, curPos.Y.Offset + 12)
 	applyMinimizeState()
+	playAppearEffect()
 end
 
 keyBarBox.FocusLost:Connect(function()
@@ -924,7 +821,7 @@ lockBtn.MouseButton1Click:Connect(function()
 	guiLocked = not guiLocked
 	mainFrame.Draggable = not guiLocked
 	lockBtn.Image = guiLocked and ICON_LOCK or ICON_UNLOCK
-	lockBtn.BackgroundColor3 = guiLocked and Color3.fromRGB(65, 55, 35) or Color3.fromRGB(36, 39, 48)
+	lockBtn.BackgroundColor3 = guiLocked and Color3.fromRGB(65, 55, 35) or Color3.fromRGB(38, 42, 52)
 end)
 
 minBtn.MouseButton1Click:Connect(function()
@@ -937,10 +834,9 @@ end)
 closeBtn.MouseButton1Click:Connect(function()
 	playClickSound()
 	pulseButton(closeBtn)
-	setSpeedLoop(false)
-	setJumpLoop(false)
-	setNoclip(false)
 	task.delay(0.08, function()
 		screenGui:Destroy()
 	end)
 end)
+
+playAppearEffect()
