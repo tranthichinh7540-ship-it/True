@@ -43,31 +43,28 @@ local function playClickSound()
 	end)
 end
 
-local GUI_WIDTH = 390
-local GUI_HEIGHT = 235
-local TOP_HEIGHT = 32
+-- Kích thước chuẩn: bước nhập key giữ form cũ gọn gàng, mở khóa xong mở rộng sang GUI chính
+local KEY_W, KEY_H = 380, 152
+local MAIN_W, MAIN_H = 396, 232
+local TOP_H = 32
 
--- Khung bao ngoài (không ClipsDescendants để 2 ảnh có thể ngồi hẳn lên trên mép GUI)
 local outerRoot = Instance.new("Frame")
 outerRoot.Name = "TRUECHANCE_Root"
-outerRoot.Size = UDim2.new(0, GUI_WIDTH, 0, GUI_HEIGHT)
-outerRoot.Position = UDim2.new(0.5, -GUI_WIDTH / 2, 0.5, -GUI_HEIGHT / 2 + 18)
+outerRoot.Size = UDim2.new(0, KEY_W, 0, KEY_H)
+outerRoot.Position = UDim2.new(0.5, -KEY_W / 2, 0.5, -KEY_H / 2)
 outerRoot.BackgroundTransparency = 1
 outerRoot.Active = true
 outerRoot.Draggable = true
 outerRoot.Parent = screenGui
 
--- Khung chính phong cách WindUI với viền màu xám nhạt
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "TRUECHANCE_Main"
 mainFrame.Size = UDim2.new(1, 0, 1, 0)
-mainFrame.Position = UDim2.new(0, 0, 0, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20, 21, 26)
 mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
 mainFrame.ZIndex = 2
 mainFrame.Parent = outerRoot
-
 Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
 
 local mainStroke = Instance.new("UIStroke")
@@ -75,15 +72,13 @@ mainStroke.Color = Color3.fromRGB(165, 170, 182)
 mainStroke.Thickness = 1.4
 mainStroke.Parent = mainFrame
 
--- Thanh Topbar WindUI
 local topBar = Instance.new("Frame")
 topBar.Name = "TopBar"
-topBar.Size = UDim2.new(1, 0, 0, TOP_HEIGHT)
+topBar.Size = UDim2.new(1, 0, 0, TOP_H)
 topBar.BackgroundColor3 = Color3.fromRGB(26, 28, 34)
 topBar.BorderSizePixel = 0
 topBar.ZIndex = 3
 topBar.Parent = mainFrame
-
 Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 10)
 
 local topFix = Instance.new("Frame")
@@ -138,7 +133,6 @@ closeBtn.ZIndex = 5
 closeBtn.Parent = topBar
 Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
 
--- Khu vực nội dung chính
 local contentFrame = Instance.new("Frame")
 contentFrame.Name = "Content"
 contentFrame.Size = UDim2.new(1, -16, 1, -42)
@@ -154,7 +148,7 @@ contentStroke.Color = Color3.fromRGB(145, 150, 162)
 contentStroke.Thickness = 1
 contentStroke.Parent = contentFrame
 
--- ================= MÀN HÌNH NHẬP KEY =================
+-- ================= MÀN HÌNH NHẬP KEY (GIỮ FORM CŨ) =================
 local keyScreen = Instance.new("Frame")
 keyScreen.Name = "KeyScreen"
 keyScreen.Size = UDim2.new(1, 0, 1, 0)
@@ -202,10 +196,9 @@ mainHub.Visible = false
 mainHub.ZIndex = 4
 mainHub.Parent = contentFrame
 
--- Cột tab bên trái (Home & Setting)
 local tabSidebar = Instance.new("Frame")
 tabSidebar.Name = "Sidebar"
-tabSidebar.Size = UDim2.new(0, 104, 1, -12)
+tabSidebar.Size = UDim2.new(0, 106, 1, -12)
 tabSidebar.Position = UDim2.new(0, 6, 0, 6)
 tabSidebar.BackgroundColor3 = Color3.fromRGB(28, 31, 39)
 tabSidebar.BorderSizePixel = 0
@@ -220,8 +213,8 @@ tabStroke.Parent = tabSidebar
 
 local pageArea = Instance.new("Frame")
 pageArea.Name = "PageArea"
-pageArea.Size = UDim2.new(1, -122, 1, -12)
-pageArea.Position = UDim2.new(0, 116, 0, 6)
+pageArea.Size = UDim2.new(1, -124, 1, -12)
+pageArea.Position = UDim2.new(0, 118, 0, 6)
 pageArea.BackgroundColor3 = Color3.fromRGB(27, 29, 36)
 pageArea.BorderSizePixel = 0
 pageArea.ZIndex = 5
@@ -244,31 +237,31 @@ homePage.CanvasSize = UDim2.new(0, 0, 0, 0)
 homePage.ZIndex = 6
 homePage.Parent = pageArea
 
-local homeWelcome = Instance.new("TextLabel")
-homeWelcome.Size = UDim2.new(1, -8, 0, 26)
-homeWelcome.Position = UDim2.new(0, 4, 0, 4)
-homeWelcome.BackgroundTransparency = 1
-homeWelcome.Text = "Home • TRUECHANCE"
-homeWelcome.TextXAlignment = Enum.TextXAlignment.Left
-homeWelcome.TextColor3 = Color3.fromRGB(240, 242, 248)
-homeWelcome.Font = Enum.Font.GothamBold
-homeWelcome.TextSize = 13
-homeWelcome.ZIndex = 7
-homeWelcome.Parent = homePage
+local homeTitle = Instance.new("TextLabel")
+homeTitle.Size = UDim2.new(1, -8, 0, 24)
+homeTitle.Position = UDim2.new(0, 4, 0, 4)
+homeTitle.BackgroundTransparency = 1
+homeTitle.Text = "Home"
+homeTitle.TextXAlignment = Enum.TextXAlignment.Left
+homeTitle.TextColor3 = Color3.fromRGB(240, 242, 248)
+homeTitle.Font = Enum.Font.GothamBold
+homeTitle.TextSize = 13
+homeTitle.ZIndex = 7
+homeTitle.Parent = homePage
 
-local homeInfo = Instance.new("TextLabel")
-homeInfo.Size = UDim2.new(1, -8, 0, 46)
-homeInfo.Position = UDim2.new(0, 4, 0, 32)
-homeInfo.BackgroundTransparency = 1
-homeInfo.Text = "Chào mừng " .. player.Name .. " đã mở khóa TRUECHANCE."
-homeInfo.TextXAlignment = Enum.TextXAlignment.Left
-homeInfo.TextYAlignment = Enum.TextYAlignment.Top
-homeInfo.TextWrapped = true
-homeInfo.TextColor3 = Color3.fromRGB(190, 195, 208)
-homeInfo.Font = Enum.Font.Gotham
-homeInfo.TextSize = 11
-homeInfo.ZIndex = 7
-homeInfo.Parent = homePage
+local homeDesc = Instance.new("TextLabel")
+homeDesc.Size = UDim2.new(1, -8, 0, 44)
+homeDesc.Position = UDim2.new(0, 4, 0, 30)
+homeDesc.BackgroundTransparency = 1
+homeDesc.Text = "Chào " .. player.Name .. ", đã vào TRUECHANCE."
+homeDesc.TextXAlignment = Enum.TextXAlignment.Left
+homeDesc.TextYAlignment = Enum.TextYAlignment.Top
+homeDesc.TextWrapped = true
+homeDesc.TextColor3 = Color3.fromRGB(190, 195, 208)
+homeDesc.Font = Enum.Font.Gotham
+homeDesc.TextSize = 11
+homeDesc.ZIndex = 7
+homeDesc.Parent = homePage
 
 local settingPage = Instance.new("ScrollingFrame")
 settingPage.Name = "SettingPage"
@@ -342,7 +335,6 @@ settingTabBtn.MouseButton1Click:Connect(function()
 end)
 
 -- ================= CHỨC NĂNG TRONG SETTING =================
-local lowGraphicsEnabled = false
 local speedLoopEnabled = false
 local speedValue = 28
 local jumpLoopEnabled = false
@@ -386,7 +378,6 @@ local function fixCamera()
 	end
 end
 
--- Loop cho Speed / Jump / Noclip
 RunService.Heartbeat:Connect(function()
 	local char = player.Character
 	local hum = char and char:FindFirstChildOfClass("Humanoid")
@@ -543,7 +534,6 @@ local function makeLoopAdjustRow(labelText, defaultVal, stepVal, minVal, maxVal,
 end
 
 makeToggleRow("Low graphics", function(state)
-	lowGraphicsEnabled = state
 	applyLowGraphics(state)
 end)
 
@@ -580,62 +570,88 @@ fixCamRow.MouseButton1Click:Connect(function()
 	fixCamera()
 end)
 
--- ================= 2 ẢNH NGỒI TRÊN / NGOÀI ĐỈNH GUI =================
-local function createTopOutsideImage(imageId, xOffset)
-	local imgSize = 54
-	local jumpHeight = 16 -- Mức nhảy cố định: spam click không nhảy cao hơn
+-- ================= 2 ẢNH (KHÔNG SOUND CLICK, KHÔNG KHUNG VIỀN) =================
+local imgSize = 54
+local jumpHeight = 16
 
-	-- Nằm ngay trên đỉnh ngoài của mainFrame (y = -imgSize)
-	local basePosition = UDim2.new(0, xOffset, 0, -imgSize)
+local imgBtn1 = Instance.new("ImageButton")
+imgBtn1.Size = UDim2.new(0, imgSize, 0, imgSize)
+imgBtn1.BackgroundTransparency = 1
+imgBtn1.BorderSizePixel = 0
+imgBtn1.Image = "rbxassetid://70844413352953"
+imgBtn1.ScaleType = Enum.ScaleType.Fit
+imgBtn1.AutoButtonColor = false
+imgBtn1.ZIndex = 10
+imgBtn1.Parent = outerRoot
 
-	local imgBtn = Instance.new("ImageButton")
-	imgBtn.Size = UDim2.new(0, imgSize, 0, imgSize)
-	imgBtn.Position = basePosition
-	imgBtn.BackgroundTransparency = 1
-	imgBtn.BorderSizePixel = 0
-	imgBtn.Image = "rbxassetid://" .. tostring(imageId)
-	imgBtn.ScaleType = Enum.ScaleType.Fit
-	imgBtn.AutoButtonColor = false
-	imgBtn.ZIndex = 10
-	imgBtn.Parent = outerRoot
+local imgBtn2 = Instance.new("ImageButton")
+imgBtn2.Size = UDim2.new(0, imgSize, 0, imgSize)
+imgBtn2.BackgroundTransparency = 1
+imgBtn2.BorderSizePixel = 0
+imgBtn2.Image = "rbxassetid://131733394534816"
+imgBtn2.ScaleType = Enum.ScaleType.Fit
+imgBtn2.AutoButtonColor = false
+imgBtn2.ZIndex = 10
+imgBtn2.Parent = outerRoot
 
-	task.delay(0.8, function()
-		if not imgBtn.IsLoaded then
-			imgBtn.Image = "rbxthumb://type=Asset&id=" .. tostring(imageId) .. "&w=420&h=420"
-		end
-	end)
+task.delay(0.8, function()
+	if not imgBtn1.IsLoaded then
+		imgBtn1.Image = "rbxthumb://type=Asset&id=70844413352953&w=420&h=420"
+	end
+	if not imgBtn2.IsLoaded then
+		imgBtn2.Image = "rbxthumb://type=Asset&id=131733394534816&w=420&h=420"
+	end
+end)
 
+local isUnlocked = false
+local basePos1 = UDim2.new(0, 12, 1, -(barHeight + barBottomMargin + imgSize + 36))
+local basePos2 = UDim2.new(0, 70, 1, -(barHeight + barBottomMargin + imgSize + 36))
+
+local function syncImagePositions()
+	if not isUnlocked then
+		-- Lúc nhập key: 2 ảnh ngồi sát nhau ở đầu bên trái trên thanh key ngang như cũ
+		basePos1 = UDim2.new(0, 12, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
+		basePos2 = UDim2.new(0, 70, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
+	else
+		-- Sau khi nhập key: 2 ảnh nhảy lên nằm trên mép ngoài đỉnh GUI
+		basePos1 = UDim2.new(0, 12, 0, -imgSize)
+		basePos2 = UDim2.new(0, 70, 0, -imgSize)
+	end
+	imgBtn1.Position = basePos1
+	imgBtn2.Position = basePos2
+end
+
+syncImagePositions()
+
+local function bindBounce(btn, getBase)
 	local currentTween = nil
 	local clickToken = 0
 
-	imgBtn.MouseButton1Click:Connect(function()
+	btn.MouseButton1Click:Connect(function()
 		clickToken += 1
 		local myToken = clickToken
+		local base = getBase()
 
 		if currentTween then
 			currentTween:Cancel()
 		end
 
-		-- Luôn nhảy tới cùng 1 mức cố định (không cộng dồn khi spam click)
 		local targetPos = UDim2.new(
-			basePosition.X.Scale,
-			basePosition.X.Offset,
-			basePosition.Y.Scale,
-			basePosition.Y.Offset - jumpHeight
+			base.X.Scale,
+			base.X.Offset,
+			base.Y.Scale,
+			base.Y.Offset - jumpHeight
 		)
 
-		local jumpInfo = TweenInfo.new(0.11, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-		currentTween = TweenService:Create(imgBtn, jumpInfo, {
+		currentTween = TweenService:Create(btn, TweenInfo.new(0.11, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 			Position = targetPos
 		})
 		currentTween:Play()
 
-		-- Rơi xuống chậm khoảng 0.5s
 		task.delay(0.11, function()
 			if myToken == clickToken then
-				local fallInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-				currentTween = TweenService:Create(imgBtn, fallInfo, {
-					Position = basePosition
+				currentTween = TweenService:Create(btn, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+					Position = getBase()
 				})
 				currentTween:Play()
 			end
@@ -643,14 +659,18 @@ local function createTopOutsideImage(imageId, xOffset)
 	end)
 end
 
--- 2 ảnh nằm sát nhau ở đầu bên trái, ngồi trên mép ngoài đỉnh GUI
-createTopOutsideImage("70844413352953", 12)
-createTopOutsideImage("131733394534816", 70)
+bindBounce(imgBtn1, function() return basePos1 end)
+bindBounce(imgBtn2, function() return basePos2 end)
 
--- Xử lý nhập key -> mở vào GUI chính
 local function unlockMainGui()
+	if isUnlocked then return end
+	isUnlocked = true
 	keyScreen.Visible = false
 	mainHub.Visible = true
+
+	outerRoot.Size = UDim2.new(0, MAIN_W, 0, MAIN_H)
+	outerRoot.Position = UDim2.new(0.5, -MAIN_W / 2, 0.5, -MAIN_H / 2 + 16)
+	syncImagePositions()
 end
 
 keyBarBox.FocusLost:Connect(function()
@@ -667,7 +687,11 @@ minBtn.MouseButton1Click:Connect(function()
 	playClickSound()
 	minimized = not minimized
 	contentFrame.Visible = not minimized
-	mainFrame.Size = minimized and UDim2.new(1, 0, 0, TOP_HEIGHT) or UDim2.new(1, 0, 1, 0)
+	if minimized then
+		mainFrame.Size = UDim2.new(1, 0, 0, TOP_H)
+	else
+		mainFrame.Size = UDim2.new(1, 0, 1, 0)
+	end
 end)
 
 closeBtn.MouseButton1Click:Connect(function()
