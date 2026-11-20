@@ -49,7 +49,6 @@ local function playClickSound()
 	end)
 end
 
--- Kích thước: khu nhập key giữ form cũ, GUI chính kéo dài hơn
 local KEY_W, KEY_H = 380, 152
 local MAIN_W, MAIN_H = 470, 232
 local TOP_H = 32
@@ -58,26 +57,18 @@ local isUnlocked = false
 local minimized = false
 local guiLocked = false
 
--- Kéo thả đặt ở outerRoot để 2 ảnh luôn di chuyển theo GUI
-local outerRoot = Instance.new("Frame")
-outerRoot.Name = "TRUECHANCE_Root"
-outerRoot.Size = UDim2.new(0, KEY_W, 0, KEY_H)
-outerRoot.Position = UDim2.new(0.5, -KEY_W / 2, 0.5, -KEY_H / 2)
-outerRoot.BackgroundTransparency = 1
-outerRoot.Active = true
-outerRoot.Draggable = true
-outerRoot.Parent = screenGui
-
+-- Khung chính kéo thả được và giữ 2 ảnh đi theo sát
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "TRUECHANCE_Main"
-mainFrame.Size = UDim2.new(1, 0, 1, 0)
+mainFrame.Size = UDim2.new(0, KEY_W, 0, KEY_H)
+mainFrame.Position = UDim2.new(0.5, -KEY_W / 2, 0.5, -KEY_H / 2)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20, 21, 26)
 mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
-mainFrame.Active = false
-mainFrame.Draggable = false
+mainFrame.Active = true
+mainFrame.Draggable = true
 mainFrame.ZIndex = 2
-mainFrame.Parent = outerRoot
+mainFrame.Parent = screenGui
 Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
 
 local mainStroke = Instance.new("UIStroke")
@@ -96,6 +87,7 @@ topBar.Parent = mainFrame
 Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 10)
 
 local topFix = Instance.new("Frame")
+topFix.Name = "TopFix"
 topFix.Size = UDim2.new(1, 0, 0, 10)
 topFix.Position = UDim2.new(0, 0, 1, -10)
 topFix.BackgroundColor3 = Color3.fromRGB(26, 28, 34)
@@ -105,6 +97,7 @@ topFix.ZIndex = 3
 topFix.Parent = topBar
 
 local divider = Instance.new("Frame")
+divider.Name = "Divider"
 divider.Size = UDim2.new(1, 0, 0, 1)
 divider.Position = UDim2.new(0, 0, 1, -1)
 divider.BackgroundColor3 = Color3.fromRGB(120, 125, 138)
@@ -125,7 +118,7 @@ titleLabel.TextSize = 13
 titleLabel.ZIndex = 4
 titleLabel.Parent = topBar
 
--- Nút Lock GUI dùng Icon ID (không dùng emoji)
+-- Nút Lock GUI dùng Icon ID
 local lockBtn = Instance.new("ImageButton")
 lockBtn.Name = "LockGuiBtn"
 lockBtn.Size = UDim2.new(0, 22, 0, 22)
@@ -187,7 +180,7 @@ contentStroke.Color = Color3.fromRGB(145, 150, 162)
 contentStroke.Thickness = 1
 contentStroke.Parent = contentFrame
 
--- ================= MÀN HÌNH NHẬP KEY (GIỮ NGUYÊN NHƯ CŨ) =================
+-- ================= MÀN HÌNH NHẬP KEY (GIỮ FORM CŨ) =================
 local keyScreen = Instance.new("Frame")
 keyScreen.Name = "KeyScreen"
 keyScreen.Size = UDim2.new(1, 0, 1, 0)
@@ -654,7 +647,7 @@ fixCamRow.MouseButton1Click:Connect(function()
 	fixCamera()
 end)
 
--- ================= 2 ẢNH (KHÔNG SOUND CLICK, KHÔNG KHUNG VIỀN) =================
+-- ================= 2 ẢNH NEO SÁT THEO mainFrame (KHÔNG SOUND CLICK, KHÔNG KHUNG VIỀN) =================
 local imgSize = 54
 local jumpHeight = 16
 
@@ -666,7 +659,7 @@ imgBtn1.Image = "rbxassetid://70844413352953"
 imgBtn1.ScaleType = Enum.ScaleType.Fit
 imgBtn1.AutoButtonColor = false
 imgBtn1.ZIndex = 10
-imgBtn1.Parent = outerRoot
+imgBtn1.Parent = screenGui
 
 local imgBtn2 = Instance.new("ImageButton")
 imgBtn2.Size = UDim2.new(0, imgSize, 0, imgSize)
@@ -676,7 +669,7 @@ imgBtn2.Image = "rbxassetid://131733394534816"
 imgBtn2.ScaleType = Enum.ScaleType.Fit
 imgBtn2.AutoButtonColor = false
 imgBtn2.ZIndex = 10
-imgBtn2.Parent = outerRoot
+imgBtn2.Parent = screenGui
 
 task.delay(0.8, function()
 	if not imgBtn1.IsLoaded then
@@ -687,8 +680,23 @@ task.delay(0.8, function()
 	end
 end)
 
-local basePos1 = UDim2.new(0, 12, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
-local basePos2 = UDim2.new(0, 70, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
+local baseAbs1 = Vector2.new(0, 0)
+local baseAbs2 = Vector2.new(0, 0)
+local bouncing1 = false
+local bouncing2 = false
+
+local function getBaseScreenPos(index)
+	local absPos = mainFrame.AbsolutePosition
+	local absSize = mainFrame.AbsoluteSize
+	local xOff = (index == 1) and 20 or 78
+	if not isUnlocked then
+		local yOff = TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize)
+		return UDim2.fromOffset(absPos.X + xOff, absPos.Y + yOff), Vector2.new(absPos.X + xOff, absPos.Y + yOff)
+	else
+		local yOff = -imgSize
+		return UDim2.fromOffset(absPos.X + xOff, absPos.Y + yOff), Vector2.new(absPos.X + xOff, absPos.Y + yOff)
+	end
+end
 
 local function syncImagePositions()
 	if minimized then
@@ -699,39 +707,37 @@ local function syncImagePositions()
 	imgBtn1.Visible = true
 	imgBtn2.Visible = true
 
-	if not isUnlocked then
-		basePos1 = UDim2.new(0, 12, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
-		basePos2 = UDim2.new(0, 70, 0, TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize))
-	else
-		basePos1 = UDim2.new(0, 12, 0, -imgSize)
-		basePos2 = UDim2.new(0, 70, 0, -imgSize)
+	local u1, v1 = getBaseScreenPos(1)
+	local u2, v2 = getBaseScreenPos(2)
+	baseAbs1 = v1
+	baseAbs2 = v2
+	if not bouncing1 then
+		imgBtn1.Position = u1
 	end
-	imgBtn1.Position = basePos1
-	imgBtn2.Position = basePos2
+	if not bouncing2 then
+		imgBtn2.Position = u2
+	end
 end
 
-syncImagePositions()
+mainFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(syncImagePositions)
+mainFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(syncImagePositions)
+task.defer(syncImagePositions)
 
-local function bindBounce(btn, getBase)
+local function bindBounce(btn, index, setBouncing)
 	local currentTween = nil
 	local clickToken = 0
 
 	btn.MouseButton1Click:Connect(function()
 		clickToken += 1
 		local myToken = clickToken
-		local base = getBase()
+		setBouncing(true)
 
+		local _, baseVec = getBaseScreenPos(index)
 		if currentTween then
 			currentTween:Cancel()
 		end
 
-		local targetPos = UDim2.new(
-			base.X.Scale,
-			base.X.Offset,
-			base.Y.Scale,
-			base.Y.Offset - jumpHeight
-		)
-
+		local targetPos = UDim2.fromOffset(baseVec.X, baseVec.Y - jumpHeight)
 		currentTween = TweenService:Create(btn, TweenInfo.new(0.11, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 			Position = targetPos
 		})
@@ -739,17 +745,24 @@ local function bindBounce(btn, getBase)
 
 		task.delay(0.11, function()
 			if myToken == clickToken then
+				local _, latestBase = getBaseScreenPos(index)
 				currentTween = TweenService:Create(btn, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-					Position = getBase()
+					Position = UDim2.fromOffset(latestBase.X, latestBase.Y)
 				})
 				currentTween:Play()
+				currentTween.Completed:Once(function()
+					if myToken == clickToken then
+						setBouncing(false)
+						syncImagePositions()
+					end
+				end)
 			end
 		end)
 	end)
 end
 
-bindBounce(imgBtn1, function() return basePos1 end)
-bindBounce(imgBtn2, function() return basePos2 end)
+bindBounce(imgBtn1, 1, function(v) bouncing1 = v end)
+bindBounce(imgBtn2, 2, function(v) bouncing2 = v end)
 
 local function applyMinimizeState()
 	local activeW = isUnlocked and MAIN_W or KEY_W
@@ -757,12 +770,14 @@ local function applyMinimizeState()
 
 	if minimized then
 		contentFrame.Visible = false
+		topFix.Visible = false
+		divider.Visible = false
 		mainFrame.Size = UDim2.new(0, activeW, 0, TOP_H)
-		outerRoot.Size = UDim2.new(0, activeW, 0, TOP_H)
 	else
 		contentFrame.Visible = true
+		topFix.Visible = true
+		divider.Visible = true
 		mainFrame.Size = UDim2.new(0, activeW, 0, activeH)
-		outerRoot.Size = UDim2.new(0, activeW, 0, activeH)
 	end
 	syncImagePositions()
 end
@@ -773,8 +788,9 @@ local function unlockMainGui()
 	keyScreen.Visible = false
 	mainHub.Visible = true
 
-	outerRoot.Size = UDim2.new(0, MAIN_W, 0, MAIN_H)
-	outerRoot.Position = UDim2.new(0.5, -MAIN_W / 2, 0.5, -MAIN_H / 2 + 16)
+	local curPos = mainFrame.Position
+	mainFrame.Size = UDim2.new(0, MAIN_W, 0, MAIN_H)
+	mainFrame.Position = UDim2.new(curPos.X.Scale, curPos.X.Offset - 45, curPos.Y.Scale, curPos.Y.Offset + 12)
 	applyMinimizeState()
 end
 
@@ -790,7 +806,7 @@ end)
 lockBtn.MouseButton1Click:Connect(function()
 	playClickSound()
 	guiLocked = not guiLocked
-	outerRoot.Draggable = not guiLocked
+	mainFrame.Draggable = not guiLocked
 	lockBtn.Image = guiLocked and ICON_LOCK or ICON_UNLOCK
 	lockBtn.BackgroundColor3 = guiLocked and Color3.fromRGB(65, 55, 35) or Color3.fromRGB(36, 39, 48)
 end)
