@@ -49,6 +49,21 @@ local function playClickSound()
 	end)
 end
 
+local function pulseButton(btn)
+	local scale = btn:FindFirstChildOfClass("UIScale")
+	if not scale then
+		scale = Instance.new("UIScale")
+		scale.Scale = 1
+		scale.Parent = btn
+	end
+	scale.Scale = 0.94
+	TweenService:Create(
+		scale,
+		TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ Scale = 1 }
+	):Play()
+end
+
 local KEY_W, KEY_H = 380, 152
 local MAIN_W, MAIN_H = 470, 232
 local TOP_H = 32
@@ -57,7 +72,6 @@ local isUnlocked = false
 local minimized = false
 local guiLocked = false
 
--- Khung chính kéo thả được và giữ 2 ảnh đi theo sát
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "TRUECHANCE_Main"
 mainFrame.Size = UDim2.new(0, KEY_W, 0, KEY_H)
@@ -180,7 +194,7 @@ contentStroke.Color = Color3.fromRGB(145, 150, 162)
 contentStroke.Thickness = 1
 contentStroke.Parent = contentFrame
 
--- ================= MÀN HÌNH NHẬP KEY (GIỮ FORM CŨ) =================
+-- ================= MÀN HÌNH NHẬP KEY =================
 local keyScreen = Instance.new("Frame")
 keyScreen.Name = "KeyScreen"
 keyScreen.Size = UDim2.new(1, 0, 1, 0)
@@ -307,7 +321,7 @@ local function createTabButton(nameText, iconId, yPos, isDefault)
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(1, -10, 0, 30)
 	btn.Position = UDim2.new(0, 5, 0, yPos)
-	btn.BackgroundColor3 = isDefault and Color3.fromRGB(44, 48, 60) or Color3.fromRGB(33, 36, 45)
+	btn.BackgroundColor3 = isDefault and Color3.fromRGB(48, 53, 68) or Color3.fromRGB(33, 36, 45)
 	btn.BorderSizePixel = 0
 	btn.Text = ""
 	btn.AutoButtonColor = false
@@ -342,12 +356,35 @@ end
 local homeTabBtn = createTabButton("Home", ICON_HOME, 8, true)
 local settingTabBtn = createTabButton("Setting", ICON_SETTING, 44, false)
 
+local function animatePageIn(page)
+	page.Position = UDim2.new(0, 14, 0, 5)
+	TweenService:Create(
+		page,
+		TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ Position = UDim2.new(0, 5, 0, 5) }
+	):Play()
+end
+
 local function switchTab(target)
 	playClickSound()
+	pulseButton(target == "Home" and homeTabBtn or settingTabBtn)
+
 	homePage.Visible = (target == "Home")
 	settingPage.Visible = (target == "Setting")
-	homeTabBtn.BackgroundColor3 = (target == "Home") and Color3.fromRGB(44, 48, 60) or Color3.fromRGB(33, 36, 45)
-	settingTabBtn.BackgroundColor3 = (target == "Setting") and Color3.fromRGB(44, 48, 60) or Color3.fromRGB(33, 36, 45)
+
+	TweenService:Create(
+		homeTabBtn,
+		TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ BackgroundColor3 = (target == "Home") and Color3.fromRGB(48, 53, 68) or Color3.fromRGB(33, 36, 45) }
+	):Play()
+
+	TweenService:Create(
+		settingTabBtn,
+		TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ BackgroundColor3 = (target == "Setting") and Color3.fromRGB(48, 53, 68) or Color3.fromRGB(33, 36, 45) }
+	):Play()
+
+	animatePageIn(target == "Home" and homePage or settingPage)
 end
 
 homeTabBtn.MouseButton1Click:Connect(function()
@@ -361,10 +398,75 @@ end)
 -- ================= CHỨC NĂNG TRONG SETTING =================
 local speedLoopEnabled = false
 local speedValue = 28
+local defaultWalkSpeed = 16
+
 local jumpLoopEnabled = false
 local jumpValue = 65
+local defaultJumpPower = 50
+local defaultJumpHeight = 7.2
+
 local noclipEnabled = false
 local savedPartCollide = {}
+
+local function captureDefaultMovement(hum)
+	if not hum then return end
+	if not speedLoopEnabled and hum.WalkSpeed > 0 then
+		defaultWalkSpeed = hum.WalkSpeed
+	end
+	if not jumpLoopEnabled then
+		if hum.UseJumpPower and hum.JumpPower > 0 then
+			defaultJumpPower = hum.JumpPower
+		elseif hum.JumpHeight > 0 then
+			defaultJumpHeight = hum.JumpHeight
+		end
+	end
+end
+
+local function setSpeedLoop(enable)
+	speedLoopEnabled = enable
+	local char = player.Character
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	if enable then
+		if hum then
+			captureDefaultMovement(hum)
+			hum.WalkSpeed = speedValue
+		end
+	else
+		if hum then
+			hum.WalkSpeed = defaultWalkSpeed
+		end
+	end
+end
+
+local function setJumpLoop(enable)
+	jumpLoopEnabled = enable
+	local char = player.Character
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	if enable then
+		if hum then
+			captureDefaultMovement(hum)
+			hum.UseJumpPower = true
+			hum.JumpPower = jumpValue
+		end
+	else
+		if hum then
+			if hum.UseJumpPower then
+				hum.JumpPower = defaultJumpPower
+			else
+				hum.JumpHeight = defaultJumpHeight
+			end
+		end
+	end
+end
+
+player.CharacterAdded:Connect(function(char)
+	local hum = char:WaitForChild("Humanoid", 5)
+	if hum then
+		defaultWalkSpeed = hum.WalkSpeed
+		defaultJumpPower = hum.JumpPower
+		defaultJumpHeight = hum.JumpHeight
+	end
+end)
 
 local function applyLowGraphics(enable)
 	if enable then
@@ -450,7 +552,6 @@ local function fixCamera()
 end
 
 RunService.Heartbeat:Connect(function()
-	if minimized then return end
 	local char = player.Character
 	local hum = char and char:FindFirstChildOfClass("Humanoid")
 	if hum then
@@ -515,9 +616,14 @@ local function makeToggleRow(labelText, onChanged)
 
 	tgl.MouseButton1Click:Connect(function()
 		playClickSound()
+		pulseButton(tgl)
 		state = not state
 		tgl.Text = state and "ON" or "OFF"
-		tgl.BackgroundColor3 = state and Color3.fromRGB(75, 165, 110) or Color3.fromRGB(52, 56, 68)
+		TweenService:Create(
+			tgl,
+			TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{ BackgroundColor3 = state and Color3.fromRGB(75, 165, 110) or Color3.fromRGB(52, 56, 68) }
+		):Play()
 		onChanged(state)
 	end)
 end
@@ -567,6 +673,7 @@ local function makeLoopAdjustRow(labelText, defaultVal, stepVal, minVal, maxVal,
 	plusBtn.TextColor3 = Color3.fromRGB(240, 242, 248)
 	plusBtn.Font = Enum.Font.GothamBold
 	plusBtn.TextSize = 12
+	minusBtn.ZIndex = 8
 	plusBtn.ZIndex = 8
 	plusBtn.Parent = row
 	Instance.new("UICorner", plusBtn).CornerRadius = UDim.new(0, 5)
@@ -591,21 +698,28 @@ local function makeLoopAdjustRow(labelText, defaultVal, stepVal, minVal, maxVal,
 
 	minusBtn.MouseButton1Click:Connect(function()
 		playClickSound()
+		pulseButton(minusBtn)
 		currentVal = math.max(minVal, currentVal - stepVal)
 		refreshLabel()
 	end)
 
 	plusBtn.MouseButton1Click:Connect(function()
 		playClickSound()
+		pulseButton(plusBtn)
 		currentVal = math.min(maxVal, currentVal + stepVal)
 		refreshLabel()
 	end)
 
 	tgl.MouseButton1Click:Connect(function()
 		playClickSound()
+		pulseButton(tgl)
 		enabled = not enabled
 		tgl.Text = enabled and "ON" or "OFF"
-		tgl.BackgroundColor3 = enabled and Color3.fromRGB(75, 165, 110) or Color3.fromRGB(52, 56, 68)
+		TweenService:Create(
+			tgl,
+			TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{ BackgroundColor3 = enabled and Color3.fromRGB(75, 165, 110) or Color3.fromRGB(52, 56, 68) }
+		):Play()
 		onToggle(enabled)
 	end)
 end
@@ -615,13 +729,13 @@ makeToggleRow("Low graphics", function(state)
 end)
 
 makeLoopAdjustRow("Speed loop", speedValue, 4, 16, 120, function(state)
-	speedLoopEnabled = state
+	setSpeedLoop(state)
 end, function(val)
 	speedValue = val
 end)
 
 makeLoopAdjustRow("Jump loop", jumpValue, 5, 50, 180, function(state)
-	jumpLoopEnabled = state
+	setJumpLoop(state)
 end, function(val)
 	jumpValue = val
 end)
@@ -644,12 +758,15 @@ Instance.new("UICorner", fixCamRow).CornerRadius = UDim.new(0, 6)
 
 fixCamRow.MouseButton1Click:Connect(function()
 	playClickSound()
+	pulseButton(fixCamRow)
 	fixCamera()
 end)
 
--- ================= 2 ẢNH NEO SÁT THEO mainFrame (KHÔNG SOUND CLICK, KHÔNG KHUNG VIỀN) =================
+-- ================= 2 ẢNH RƠI MƯỢT KHÔNG GIẬT & BÁM SÁT GUI =================
 local imgSize = 54
 local jumpHeight = 16
+local riseDuration = 0.11
+local fallDuration = 0.50
 
 local imgBtn1 = Instance.new("ImageButton")
 imgBtn1.Size = UDim2.new(0, imgSize, 0, imgSize)
@@ -680,89 +797,87 @@ task.delay(0.8, function()
 	end
 end)
 
-local baseAbs1 = Vector2.new(0, 0)
-local baseAbs2 = Vector2.new(0, 0)
-local bouncing1 = false
-local bouncing2 = false
+-- Trạng thái chuyển động độc lập, không tạo instance mới khi spam click
+local state1 = {
+	offset = 0,
+	phase = "idle", -- "rising" | "falling" | "idle"
+	timer = 0,
+	startOffset = 0,
+}
 
-local function getBaseScreenPos(index)
-	local absPos = mainFrame.AbsolutePosition
-	local absSize = mainFrame.AbsoluteSize
-	local xOff = (index == 1) and 20 or 78
+local state2 = {
+	offset = 0,
+	phase = "idle",
+	timer = 0,
+	startOffset = 0,
+}
+
+local function getAnchorLocalY()
 	if not isUnlocked then
-		local yOff = TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize)
-		return UDim2.fromOffset(absPos.X + xOff, absPos.Y + yOff), Vector2.new(absPos.X + xOff, absPos.Y + yOff)
+		return TOP_H + (KEY_H - TOP_H - 8) - (barHeight + barBottomMargin + imgSize)
 	else
-		local yOff = -imgSize
-		return UDim2.fromOffset(absPos.X + xOff, absPos.Y + yOff), Vector2.new(absPos.X + xOff, absPos.Y + yOff)
+		return -imgSize
 	end
 end
 
-local function syncImagePositions()
+local function stepImageMotion(st, dt)
+	if st.phase == "rising" then
+		st.timer += dt
+		local alpha = math.clamp(st.timer / riseDuration, 0, 1)
+		local eased = 1 - (1 - alpha) * (1 - alpha)
+		st.offset = st.startOffset + (jumpHeight - st.startOffset) * eased
+		if alpha >= 1 then
+			st.offset = jumpHeight
+			st.phase = "falling"
+			st.timer = 0
+			st.startOffset = jumpHeight
+		end
+	elseif st.phase == "falling" then
+		st.timer += dt
+		local alpha = math.clamp(st.timer / fallDuration, 0, 1)
+		-- Rơi chậm tự nhiên, tăng tốc nhẹ ở cuối nhưng bắt đầu mượt không khựng
+		local eased = alpha * alpha * (3 - 2 * alpha)
+		st.offset = st.startOffset * (1 - eased)
+		if alpha >= 1 then
+			st.offset = 0
+			st.phase = "idle"
+			st.timer = 0
+		end
+	end
+end
+
+local function triggerImageJump(st)
+	st.phase = "rising"
+	st.timer = 0
+	st.startOffset = st.offset
+end
+
+RunService.RenderStepped:Connect(function(dt)
+	stepImageMotion(state1, dt)
+	stepImageMotion(state2, dt)
+
 	if minimized then
 		imgBtn1.Visible = false
 		imgBtn2.Visible = false
 		return
 	end
+
 	imgBtn1.Visible = true
 	imgBtn2.Visible = true
 
-	local u1, v1 = getBaseScreenPos(1)
-	local u2, v2 = getBaseScreenPos(2)
-	baseAbs1 = v1
-	baseAbs2 = v2
-	if not bouncing1 then
-		imgBtn1.Position = u1
-	end
-	if not bouncing2 then
-		imgBtn2.Position = u2
-	end
-end
+	local absPos = mainFrame.AbsolutePosition
+	local baseY = absPos.Y + getAnchorLocalY()
+	imgBtn1.Position = UDim2.fromOffset(absPos.X + 20, math.floor(baseY - state1.offset + 0.5))
+	imgBtn2.Position = UDim2.fromOffset(absPos.X + 78, math.floor(baseY - state2.offset + 0.5))
+end)
 
-mainFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(syncImagePositions)
-mainFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(syncImagePositions)
-task.defer(syncImagePositions)
+imgBtn1.MouseButton1Click:Connect(function()
+	triggerImageJump(state1)
+end)
 
-local function bindBounce(btn, index, setBouncing)
-	local currentTween = nil
-	local clickToken = 0
-
-	btn.MouseButton1Click:Connect(function()
-		clickToken += 1
-		local myToken = clickToken
-		setBouncing(true)
-
-		local _, baseVec = getBaseScreenPos(index)
-		if currentTween then
-			currentTween:Cancel()
-		end
-
-		local targetPos = UDim2.fromOffset(baseVec.X, baseVec.Y - jumpHeight)
-		currentTween = TweenService:Create(btn, TweenInfo.new(0.11, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Position = targetPos
-		})
-		currentTween:Play()
-
-		task.delay(0.11, function()
-			if myToken == clickToken then
-				local _, latestBase = getBaseScreenPos(index)
-				currentTween = TweenService:Create(btn, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-					Position = UDim2.fromOffset(latestBase.X, latestBase.Y)
-				})
-				currentTween:Play()
-				currentTween.Completed:Once(function()
-					if myToken == clickToken then
-						setBouncing(false)
-						syncImagePositions()
-					end
-				end)
-			end
-		end)
-	end)
-end
-
-bindBounce(imgBtn1, 1, function(v) bouncing1 = v end)
-bindBounce(imgBtn2, 2, function(v) bouncing2 = v end)
+imgBtn2.MouseButton1Click:Connect(function()
+	triggerImageJump(state2)
+end)
 
 local function applyMinimizeState()
 	local activeW = isUnlocked and MAIN_W or KEY_W
@@ -779,7 +894,6 @@ local function applyMinimizeState()
 		divider.Visible = true
 		mainFrame.Size = UDim2.new(0, activeW, 0, activeH)
 	end
-	syncImagePositions()
 end
 
 local function unlockMainGui()
@@ -787,6 +901,7 @@ local function unlockMainGui()
 	isUnlocked = true
 	keyScreen.Visible = false
 	mainHub.Visible = true
+	animatePageIn(homePage)
 
 	local curPos = mainFrame.Position
 	mainFrame.Size = UDim2.new(0, MAIN_W, 0, MAIN_H)
@@ -805,6 +920,7 @@ end)
 
 lockBtn.MouseButton1Click:Connect(function()
 	playClickSound()
+	pulseButton(lockBtn)
 	guiLocked = not guiLocked
 	mainFrame.Draggable = not guiLocked
 	lockBtn.Image = guiLocked and ICON_LOCK or ICON_UNLOCK
@@ -813,15 +929,17 @@ end)
 
 minBtn.MouseButton1Click:Connect(function()
 	playClickSound()
+	pulseButton(minBtn)
 	minimized = not minimized
 	applyMinimizeState()
 end)
 
 closeBtn.MouseButton1Click:Connect(function()
 	playClickSound()
-	noclipEnabled = false
-	speedLoopEnabled = false
-	jumpLoopEnabled = false
+	pulseButton(closeBtn)
+	setSpeedLoop(false)
+	setJumpLoop(false)
+	setNoclip(false)
 	task.delay(0.08, function()
 		screenGui:Destroy()
 	end)
